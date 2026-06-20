@@ -3,8 +3,8 @@ export interface Round {
   topic: string;
   answer: string;
   facts: string[];
-  fake_fact_index: number;
-  fake_fact_true_subject: string;
+  fib_index: number;
+  fib_true_subject: string;
 }
 
 export interface QuestionsData {
@@ -17,13 +17,13 @@ export interface RoundState {
   answerPhaseComplete: boolean;
   answerCorrect: boolean;
   answerScore: number;
-  fakeFactGuess: number | null;
-  fakeFactPhaseComplete: boolean;
-  fakeFactCorrect: boolean | null;
-  fakeFactScore: number;
+  fibGuess: number | null;
+  fibPhaseComplete: boolean;
+  fibCorrect: boolean | null;
+  fibScore: number;
 }
 
-export type GamePhase = "answer" | "fake-fact" | "complete";
+export type GamePhase = "answer" | "fib" | "complete";
 
 export interface GameState {
   currentRound: number;

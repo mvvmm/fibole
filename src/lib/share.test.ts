@@ -42,8 +42,8 @@ describe("scoreToEmoji", () => {
 
 // ─── buildShareText ───────────────────────────────────────────────────────────
 
-function makeGameState(rounds: { answerScore: number; fakeFactScore: number }[]): GameState {
-  const totalScore = rounds.reduce((s, r) => s + r.answerScore + r.fakeFactScore, 0);
+function makeGameState(rounds: { answerScore: number; fibScore: number }[]): GameState {
+  const totalScore = rounds.reduce((s, r) => s + r.answerScore + r.fibScore, 0);
   return {
     currentRound: rounds.length,
     phase: "complete",
@@ -54,10 +54,10 @@ function makeGameState(rounds: { answerScore: number; fakeFactScore: number }[])
       answerPhaseComplete: true,
       answerCorrect: r.answerScore > 0,
       answerScore: r.answerScore,
-      fakeFactGuess: 0,
-      fakeFactPhaseComplete: true,
-      fakeFactCorrect: r.fakeFactScore > 0,
-      fakeFactScore: r.fakeFactScore,
+      fibGuess: 0,
+      fibPhaseComplete: true,
+      fibCorrect: r.fibScore > 0,
+      fibScore: r.fibScore,
     })),
   };
 }
@@ -65,9 +65,9 @@ function makeGameState(rounds: { answerScore: number; fakeFactScore: number }[])
 describe("buildShareText", () => {
   it("produces the expected format for a typical game", () => {
     const state = makeGameState([
-      { answerScore: 0, fakeFactScore: 0 },
-      { answerScore: 2, fakeFactScore: 1 },
-      { answerScore: 3, fakeFactScore: 1 },
+      { answerScore: 0, fibScore: 0 },
+      { answerScore: 2, fibScore: 1 },
+      { answerScore: 3, fibScore: 1 },
     ]);
     const text = buildShareText(state, [{}, {}, {}] as never, "2026-07-19");
     expect(text).toBe(
@@ -85,16 +85,16 @@ describe("buildShareText", () => {
   });
 
   it("includes https://fibole.com as the last line", () => {
-    const state = makeGameState([{ answerScore: 3, fakeFactScore: 1 }]);
+    const state = makeGameState([{ answerScore: 3, fibScore: 1 }]);
     const text = buildShareText(state, [{}] as never, "2026-06-20");
     expect(text.split("\n").at(-1)).toBe("https://fibole.com");
   });
 
   it("shows a perfect score correctly", () => {
     const state = makeGameState([
-      { answerScore: 3, fakeFactScore: 1 },
-      { answerScore: 3, fakeFactScore: 1 },
-      { answerScore: 3, fakeFactScore: 1 },
+      { answerScore: 3, fibScore: 1 },
+      { answerScore: 3, fibScore: 1 },
+      { answerScore: 3, fibScore: 1 },
     ]);
     const text = buildShareText(state, [{}, {}, {}] as never, "2026-06-20");
     expect(text).toContain("Score: 12/12");
@@ -103,9 +103,9 @@ describe("buildShareText", () => {
 
   it("shows a zero score correctly", () => {
     const state = makeGameState([
-      { answerScore: 0, fakeFactScore: 0 },
-      { answerScore: 0, fakeFactScore: 0 },
-      { answerScore: 0, fakeFactScore: 0 },
+      { answerScore: 0, fibScore: 0 },
+      { answerScore: 0, fibScore: 0 },
+      { answerScore: 0, fibScore: 0 },
     ]);
     const text = buildShareText(state, [{}, {}, {}] as never, "2026-06-20");
     expect(text).toContain("Score: 0/12");

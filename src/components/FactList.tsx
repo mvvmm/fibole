@@ -7,7 +7,7 @@ interface FactListProps {
   mode: FactMode;
   selectedIndex?: number | null;
   correctIndex?: number;
-  fakeSubject?: string;
+  fibSubject?: string;
   onSelect?: (index: number) => void;
 }
 
@@ -16,7 +16,7 @@ export function FactList({
   mode,
   selectedIndex,
   correctIndex,
-  fakeSubject,
+  fibSubject,
   onSelect,
 }: FactListProps) {
   const isRevealed = mode === "revealed";
@@ -26,16 +26,16 @@ export function FactList({
     <div>
       {facts.map((fact, i) => {
         const isLast = i === facts.length - 1;
-        const isCorrectFake = isRevealed && correctIndex === i;
+        const isCorrectFib = isRevealed && correctIndex === i;
         const isUserWrongPick =
-          isRevealed && selectedIndex != null && selectedIndex === i && !isCorrectFake;
+          isRevealed && selectedIndex != null && selectedIndex === i && !isCorrectFib;
         const isSelected = isSelecting && selectedIndex === i;
 
         const dividerColor = isRevealed ? "#e8e0d1" : "#e2d9c6";
         const borderBottom = isLast ? `1px solid ${dividerColor}` : undefined;
 
-        if (isCorrectFake) {
-          const label = selectedIndex != null && selectedIndex === i ? "fake!" : "the fake";
+        if (isCorrectFib) {
+          const label = selectedIndex != null && selectedIndex === i ? "fib!" : "the fib";
           return (
             <div
               key={i}
@@ -81,7 +81,7 @@ export function FactList({
                   {label}
                 </span>
               </div>
-              {fakeSubject && (
+              {fibSubject && (
                 <div
                   style={{
                     font: "italic 400 13px/1.3 'Newsreader', serif",
@@ -90,7 +90,7 @@ export function FactList({
                     paddingLeft: 38,
                   }}
                 >
-                  Actually true of {fakeSubject}.
+                  Actually true of {fibSubject}.
                 </div>
               )}
             </div>

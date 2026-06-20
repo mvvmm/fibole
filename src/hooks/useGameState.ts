@@ -10,10 +10,10 @@ function emptyRound(): RoundState {
     answerPhaseComplete: false,
     answerCorrect: false,
     answerScore: 0,
-    fakeFactGuess: null,
-    fakeFactPhaseComplete: false,
-    fakeFactCorrect: null,
-    fakeFactScore: 0,
+    fibGuess: null,
+    fibPhaseComplete: false,
+    fibCorrect: null,
+    fibScore: 0,
   };
 }
 
@@ -28,7 +28,7 @@ function initialState(): GameState {
 }
 
 function computeTotalScore(rounds: RoundState[]): number {
-  return rounds.reduce((sum, r) => sum + r.answerScore + r.fakeFactScore, 0);
+  return rounds.reduce((sum, r) => sum + r.answerScore + r.fibScore, 0);
 }
 
 export function useGameState(date: string) {
@@ -70,7 +70,7 @@ export function useGameState(date: string) {
       const newRounds = [...state.rounds];
       newRounds[ri] = round;
 
-      const nextPhase: GamePhase = phaseComplete ? "fake-fact" : "answer";
+      const nextPhase: GamePhase = phaseComplete ? "fib" : "answer";
 
       save({
         ...state,
@@ -84,16 +84,16 @@ export function useGameState(date: string) {
     [state, save],
   );
 
-  const submitFakeFact = useCallback(
+  const submitFib = useCallback(
     (guessIndex: number, correctIndex: number) => {
       const ri = state.currentRound;
       const round = { ...state.rounds[ri] };
       const correct = guessIndex === correctIndex;
 
-      round.fakeFactGuess = guessIndex;
-      round.fakeFactPhaseComplete = true;
-      round.fakeFactCorrect = correct;
-      round.fakeFactScore = correct ? 1 : 0;
+      round.fibGuess = guessIndex;
+      round.fibPhaseComplete = true;
+      round.fibCorrect = correct;
+      round.fibScore = correct ? 1 : 0;
 
       const newRounds = [...state.rounds];
       newRounds[ri] = round;
@@ -120,5 +120,5 @@ export function useGameState(date: string) {
     });
   }, [state, save]);
 
-  return { state, submitAnswer, submitFakeFact, advanceRound };
+  return { state, submitAnswer, submitFib, advanceRound };
 }
