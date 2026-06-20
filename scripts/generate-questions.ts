@@ -124,14 +124,14 @@ Type: ${entityType}
 Wikipedia summary: ${wikiContent.slice(0, 2000)}
 
 Task:
-1. Generate exactly 4 true, specific, verifiable facts about "${entity}". Each fact should be 1-2 sentences, interesting, and clearly verifiable from the Wikipedia summary above.
+1. Generate exactly 3 true, specific, verifiable facts about "${entity}". Each fact should be 1-2 sentences, interesting, and clearly verifiable from the Wikipedia summary above.
 2. Generate exactly 1 fact that is TRUE about "${otherEntity}" (another ${entityType}), but presented as if it could be about the same category. Do NOT mention "${otherEntity}" in the fake fact itself.
-3. Mix the 5 facts in a random order (don't put the fake fact last every time).
+3. Mix the 4 facts in a random order (don't put the fake fact last every time).
 
 Return ONLY valid JSON with this exact shape:
 {
-  "facts": ["fact1", "fact2", "fact3", "fact4", "fact5"],
-  "fake_index": <0-4, the index of the fake fact>,
+  "facts": ["fact1", "fact2", "fact3", "fact4"],
+  "fake_index": <0-3, the index of the fake fact>,
   "fake_subject": "${otherEntity}"
 }`;
 
@@ -150,7 +150,7 @@ Return ONLY valid JSON with this exact shape:
   const parsed = JSON.parse(jsonMatch[0]) as FactsResult;
   if (
     !Array.isArray(parsed.facts) ||
-    parsed.facts.length !== 5 ||
+    parsed.facts.length !== 4 ||
     typeof parsed.fake_index !== "number" ||
     !parsed.fake_subject
   ) {
