@@ -49,7 +49,7 @@ export function useGameState(date: string) {
       } catch {}
       setState(next);
     },
-    [storageKey]
+    [storageKey],
   );
 
   const submitAnswer = useCallback(
@@ -81,7 +81,7 @@ export function useGameState(date: string) {
 
       return correct;
     },
-    [state, save]
+    [state, save],
   );
 
   const submitFakeFact = useCallback(
@@ -106,7 +106,7 @@ export function useGameState(date: string) {
         totalScore: computeTotalScore(newRounds),
       });
     },
-    [state, save]
+    [state, save],
   );
 
   const advanceRound = useCallback(() => {

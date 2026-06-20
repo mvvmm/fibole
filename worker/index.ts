@@ -25,7 +25,7 @@ export default {
       }
 
       const { results } = await env.DB.prepare(
-        "SELECT * FROM questions WHERE date = ? ORDER BY round_number"
+        "SELECT * FROM questions WHERE date = ? ORDER BY round_number",
       )
         .bind(date)
         .all();

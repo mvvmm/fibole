@@ -18,11 +18,7 @@ function formatShareDate(dateStr: string): string {
   });
 }
 
-function buildShareText(
-  gameState: GameState,
-  rounds: Round[],
-  date: string
-): string {
+function buildShareText(gameState: GameState, rounds: Round[], date: string): string {
   const lines: string[] = [`Fibole • ${formatShareDate(date)}`];
   lines.push(`Score: ${gameState.totalScore}/${maxScore(rounds.length)}`);
   lines.push("");
@@ -31,7 +27,7 @@ function buildShareText(
     const answerEmoji = r.answerCorrect ? "✅" : "❌";
     const fakeEmoji = r.fakeFactCorrect ? "✅" : "❌";
     lines.push(
-      `Round ${i + 1}: ${answerEmoji} Answer (${r.answerScore}pts) • ${fakeEmoji} Fake Fact (${r.fakeFactScore}pt)`
+      `Round ${i + 1}: ${answerEmoji} Answer (${r.answerScore}pts) • ${fakeEmoji} Fake Fact (${r.fakeFactScore}pt)`,
     );
   });
 
@@ -65,9 +61,7 @@ export function ShareCard({ gameState, rounds, date }: ShareCardProps) {
         <p className="text-4xl font-bold text-slate-900">
           {total}/{max}
         </p>
-        <p className="text-slate-500 mt-1 text-sm">
-          {formatShareDate(date)}
-        </p>
+        <p className="text-slate-500 mt-1 text-sm">{formatShareDate(date)}</p>
       </div>
 
       <div className="space-y-2">

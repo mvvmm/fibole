@@ -15,9 +15,23 @@ export function normalizeAnswer(s: string): string {
 
 // Words too generic to count as meaningful single-token matches.
 const TOKEN_STOPWORDS = new Set([
-  "city", "the", "new", "old", "great", "king", "lake",
-  "cape", "fort", "port", "saint", "san", "von", "van",
-  "tower", "and", "for",
+  "city",
+  "the",
+  "new",
+  "old",
+  "great",
+  "king",
+  "lake",
+  "cape",
+  "fort",
+  "port",
+  "saint",
+  "san",
+  "von",
+  "van",
+  "tower",
+  "and",
+  "for",
 ]);
 
 const TOKEN_MIN_LENGTH = 4;
@@ -33,20 +47,17 @@ function isSig(t: string): boolean {
 // Optimal String Alignment distance — like Levenshtein but counts transpositions
 // ("ie"↔"ei") as a single edit, which is common in real misspellings.
 function levenshtein(a: string, b: string): number {
-  const m = a.length, n = b.length;
+  const m = a.length,
+    n = b.length;
   if (m === 0) return n;
   if (n === 0) return m;
   const d: number[][] = Array.from({ length: m + 1 }, (_, i) =>
-    Array.from({ length: n + 1 }, (_, j) => (i === 0 ? j : j === 0 ? i : 0))
+    Array.from({ length: n + 1 }, (_, j) => (i === 0 ? j : j === 0 ? i : 0)),
   );
   for (let i = 1; i <= m; i++) {
     for (let j = 1; j <= n; j++) {
       const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-      d[i][j] = Math.min(
-        d[i - 1][j] + 1,
-        d[i][j - 1] + 1,
-        d[i - 1][j - 1] + cost,
-      );
+      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + cost);
       if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) {
         d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + cost);
       }
@@ -79,8 +90,7 @@ export function isAnswerMatch(guess: string, answer: string): boolean {
   // Skip token strategies when the answer is a single word but the guess has
   // multiple significant tokens — prevents "France Germany" matching "France".
   const skipTokenStrategies =
-    sigATokens.length === 1 && aTokens.length === 1 &&
-    gTokens.filter(isSig).length > 1;
+    sigATokens.length === 1 && aTokens.length === 1 && gTokens.filter(isSig).length > 1;
 
   if (!skipTokenStrategies) {
     // Strategy A: any significant guess token exactly in the answer.

@@ -47,7 +47,9 @@ export function Round({
 
       {/* Answer reveal — shown once the answer phase is done */}
       {roundState.answerPhaseComplete && (
-        <div className={`rounded-lg px-4 py-3 text-center text-sm font-semibold ${roundState.answerCorrect ? "bg-green-50 text-green-700" : "bg-slate-100 text-slate-600"}`}>
+        <div
+          className={`rounded-lg px-4 py-3 text-center text-sm font-semibold ${roundState.answerCorrect ? "bg-green-50 text-green-700" : "bg-slate-100 text-slate-600"}`}
+        >
           {roundState.answerCorrect
             ? `✓ ${roundData.answer}`
             : `The answer was: ${roundData.answer}`}
@@ -66,13 +68,7 @@ export function Round({
       {/* Facts */}
       <FactList
         facts={roundData.facts}
-        mode={
-          showResult
-            ? "revealed"
-            : inFakeFactSelection
-              ? "selecting"
-              : "reading"
-        }
+        mode={showResult ? "revealed" : inFakeFactSelection ? "selecting" : "reading"}
         selectedIndex={roundState.fakeFactGuess}
         correctIndex={roundData.fake_fact_index}
         onSelect={inFakeFactSelection ? onSubmitFakeFact : undefined}
@@ -137,9 +133,7 @@ function RoundResult({
             {roundState.fakeFactCorrect ? (
               <span className="text-green-600">✓ Fake fact identified!</span>
             ) : (
-              <span className="text-slate-500">
-                Fake was fact #{roundData.fake_fact_index + 1}
-              </span>
+              <span className="text-slate-500">Fake was fact #{roundData.fake_fact_index + 1}</span>
             )}
           </p>
           <p className="text-xs text-slate-400 leading-relaxed">
