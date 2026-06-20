@@ -1,0 +1,22 @@
+{
+  "name": "Fibole",
+  "short_name": "Fibole",
+  "description": "Four facts. Three are true. Can you spot the fib? A new puzzle every day.",
+  "theme_color": "#f6f1e7",
+  "background_color": "#f6f1e7",
+  "display": "standalone",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
