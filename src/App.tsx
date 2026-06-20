@@ -38,9 +38,7 @@ export function App() {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       <header className="bg-white border-b border-slate-200 px-4 py-4 text-center">
-        <h1 className="text-xl font-bold tracking-tight text-slate-900">
-          Fibole
-        </h1>
+        <h1 className="text-xl font-bold tracking-tight text-slate-900">Fibole</h1>
         <p className="text-xs text-slate-400 mt-0.5">Daily facts challenge</p>
       </header>
 
@@ -62,9 +60,7 @@ export function App() {
         {status === "no-questions" && (
           <div className="text-center py-16 text-slate-500">
             <p className="text-lg font-semibold">No challenge today</p>
-            <p className="text-sm mt-1 text-slate-400">
-              Check back tomorrow!
-            </p>
+            <p className="text-sm mt-1 text-slate-400">Check back tomorrow!</p>
           </div>
         )}
 

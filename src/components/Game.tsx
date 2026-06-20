@@ -11,9 +11,7 @@ export function Game({ data }: GameProps) {
   const { state, submitAnswer, submitFakeFact, advanceRound } = useGameState(data.date);
 
   if (state.phase === "complete") {
-    return (
-      <ShareCard gameState={state} rounds={data.rounds} date={data.date} />
-    );
+    return <ShareCard gameState={state} rounds={data.rounds} date={data.date} />;
   }
 
   const currentRoundData = data.rounds[state.currentRound];
@@ -30,9 +28,7 @@ export function Game({ data }: GameProps) {
       totalRounds={data.rounds.length}
       phase={state.phase}
       onSubmitAnswer={(guess) => submitAnswer(guess, currentRoundData.answer)}
-      onSubmitFakeFact={(index) =>
-        submitFakeFact(index, currentRoundData.fake_fact_index)
-      }
+      onSubmitFakeFact={(index) => submitFakeFact(index, currentRoundData.fake_fact_index)}
       onNext={advanceRound}
     />
   );
