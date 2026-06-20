@@ -113,6 +113,44 @@ export function Round({
             facts describe?
           </div>
           <LongUnderline style={{ position: "absolute", left: 0, bottom: -9, display: "block" }} />
+          <div
+            style={{
+              position: "absolute",
+              right: -2,
+              top: 22,
+              transform: "rotate(5deg)",
+              textAlign: "right",
+              pointerEvents: "none",
+            }}
+          >
+            <span
+              style={{
+                display: "block",
+                font: "600 17px/1.05 'Caveat', cursive",
+                color: "#a39a87",
+                whiteSpace: "nowrap",
+              }}
+            >
+              * one of them
+              <br />
+              is a fib!
+            </span>
+            <svg
+              width="36"
+              height="26"
+              viewBox="0 0 36 30"
+              fill="none"
+              style={{ display: "block", margin: "3px 10px 0 auto" }}
+            >
+              <path
+                d="M25 2C29 9 22 17 18 26M11.5 21Q14.5 25 18 26Q21.5 25 24.5 21"
+                stroke="#a39a87"
+                strokeWidth="1.7"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
         </div>
 
         <div style={{ marginTop: 30 }}>
