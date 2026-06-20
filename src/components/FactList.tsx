@@ -28,18 +28,14 @@ export function FactList({
         const isLast = i === facts.length - 1;
         const isCorrectFake = isRevealed && correctIndex === i;
         const isUserWrongPick =
-          isRevealed &&
-          selectedIndex != null &&
-          selectedIndex === i &&
-          !isCorrectFake;
+          isRevealed && selectedIndex != null && selectedIndex === i && !isCorrectFake;
         const isSelected = isSelecting && selectedIndex === i;
 
         const dividerColor = isRevealed ? "#e8e0d1" : "#e2d9c6";
         const borderBottom = isLast ? `1px solid ${dividerColor}` : undefined;
 
         if (isCorrectFake) {
-          const label =
-            selectedIndex != null && selectedIndex === i ? "fake!" : "the fake";
+          const label = selectedIndex != null && selectedIndex === i ? "fake!" : "the fake";
           return (
             <div
               key={i}

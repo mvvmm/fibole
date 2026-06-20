@@ -43,15 +43,11 @@ export function AnswerInput({
   }
 
   const guessesLeft = maxGuesses - guessCount;
-  const guessesLeftWord =
-    guessesLeft === 1 ? "one" : guessesLeft === 2 ? "two" : "three";
-  const guessesLeftLabel =
-    guessesLeft === 1 ? "one guess" : `${guessesLeftWord} guesses`;
+  const guessesLeftWord = guessesLeft === 1 ? "one" : guessesLeft === 2 ? "two" : "three";
+  const guessesLeftLabel = guessesLeft === 1 ? "one guess" : `${guessesLeftWord} guesses`;
 
   const caption =
-    guessCount === 0 && !showError
-      ? "three guesses"
-      : `guess ${guessCount + 1} of ${maxGuesses}`;
+    guessCount === 0 && !showError ? "three guesses" : `guess ${guessCount + 1} of ${maxGuesses}`;
 
   const underlineColor = showError ? "#b4532f" : "#20201c";
 
@@ -71,10 +67,7 @@ export function AnswerInput({
         </div>
       )}
 
-      <form
-        onSubmit={handleSubmit}
-        style={{ display: "flex", alignItems: "flex-end", gap: 14 }}
-      >
+      <form onSubmit={handleSubmit} style={{ display: "flex", alignItems: "flex-end", gap: 14 }}>
         <input
           ref={inputRef}
           type="text"

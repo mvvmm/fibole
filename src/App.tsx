@@ -51,7 +51,15 @@ export function App() {
     <div style={shell}>
       <div style={inner}>
         {status === "loading" && (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, paddingTop: 80 }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 12,
+              paddingTop: 80,
+            }}
+          >
             <div
               style={{
                 width: 28,
@@ -62,7 +70,9 @@ export function App() {
                 animation: "spin 0.8s linear infinite",
               }}
             />
-            <p style={{ font: "italic 400 16px/1 'Newsreader', serif", color: "#a39a87", margin: 0 }}>
+            <p
+              style={{ font: "italic 400 16px/1 'Newsreader', serif", color: "#a39a87", margin: 0 }}
+            >
               Loading today's challenge…
             </p>
           </div>
@@ -70,10 +80,22 @@ export function App() {
 
         {status === "error" && (
           <div style={{ textAlign: "center", paddingTop: 80 }}>
-            <p style={{ font: "400 28px/1.1 'Libre Caslon Display', serif", color: "#20201c", margin: "0 0 8px" }}>
+            <p
+              style={{
+                font: "400 28px/1.1 'Libre Caslon Display', serif",
+                color: "#20201c",
+                margin: "0 0 8px",
+              }}
+            >
               Something went wrong
             </p>
-            <p style={{ font: "400 14px/1.4 'Hanken Grotesk', sans-serif", color: "#a39a87", margin: 0 }}>
+            <p
+              style={{
+                font: "400 14px/1.4 'Hanken Grotesk', sans-serif",
+                color: "#a39a87",
+                margin: 0,
+              }}
+            >
               {error}
             </p>
           </div>
@@ -81,10 +103,18 @@ export function App() {
 
         {status === "no-questions" && (
           <div style={{ textAlign: "center", paddingTop: 80 }}>
-            <p style={{ font: "400 28px/1.1 'Libre Caslon Display', serif", color: "#20201c", margin: "0 0 8px" }}>
+            <p
+              style={{
+                font: "400 28px/1.1 'Libre Caslon Display', serif",
+                color: "#20201c",
+                margin: "0 0 8px",
+              }}
+            >
               No challenge today
             </p>
-            <p style={{ font: "italic 400 15px/1 'Newsreader', serif", color: "#a39a87", margin: 0 }}>
+            <p
+              style={{ font: "italic 400 15px/1 'Newsreader', serif", color: "#a39a87", margin: 0 }}
+            >
               Check back tomorrow!
             </p>
           </div>

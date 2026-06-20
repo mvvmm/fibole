@@ -53,8 +53,7 @@ export function Round({
     ? roundState.answerGuesses[roundState.answerGuesses.length - 1]
     : undefined;
 
-  const solvedOrdinal =
-    ORDINALS[roundState.answerGuesses.length - 1] ?? "third";
+  const solvedOrdinal = ORDINALS[roundState.answerGuesses.length - 1] ?? "third";
 
   const RoundTopicRow = (
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -113,9 +112,7 @@ export function Round({
             <br />
             facts describe?
           </div>
-          <LongUnderline
-            style={{ position: "absolute", left: 0, bottom: -9, display: "block" }}
-          />
+          <LongUnderline style={{ position: "absolute", left: 0, bottom: -9, display: "block" }} />
         </div>
 
         <div style={{ marginTop: 30 }}>
@@ -139,12 +136,8 @@ export function Round({
   // ── FAKE SELECTING PHASE ─────────────────────────────────────────────
   if (isFakeSelecting) {
     const answerCorrect = roundState.answerCorrect;
-    const headingText = answerCorrect
-      ? "Now — which fact is the fake?"
-      : "Still — spot the fake?";
-    const hintText = answerCorrect
-      ? "one shot at this"
-      : "a point of pride is still a point";
+    const headingText = answerCorrect ? "Now — which fact is the fake?" : "Still — spot the fake?";
+    const hintText = answerCorrect ? "one shot at this" : "a point of pride is still a point";
     const Underline = answerCorrect ? MediumUnderline : ShortUnderline;
 
     return (
@@ -235,9 +228,7 @@ export function Round({
           >
             {headingText}
           </div>
-          <Underline
-            style={{ position: "absolute", left: 0, bottom: -8, display: "block" }}
-          />
+          <Underline style={{ position: "absolute", left: 0, bottom: -8, display: "block" }} />
         </div>
 
         <div style={{ marginTop: 28 }}>
@@ -296,8 +287,7 @@ export function Round({
           ? "Half marks."
           : "Tomorrow's yours.";
 
-  const headlineColor =
-    answerCorrect && fakeFactCorrect ? "#2f4a2e" : "#20201c";
+  const headlineColor = answerCorrect && fakeFactCorrect ? "#2f4a2e" : "#20201c";
 
   return (
     <div>

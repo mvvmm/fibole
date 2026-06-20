@@ -102,12 +102,7 @@ export function CheckMark({ size = 26 }: { size?: number }) {
 export function XMark({ size = 18, color = "#b4532f" }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 18 18" fill="none" style={{ flexShrink: 0 }}>
-      <path
-        d="M4 4L14 14M14 4L4 14"
-        stroke={color}
-        strokeWidth="2.2"
-        strokeLinecap="round"
-      />
+      <path d="M4 4L14 14M14 4L4 14" stroke={color} strokeWidth="2.2" strokeLinecap="round" />
     </svg>
   );
 }

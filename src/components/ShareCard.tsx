@@ -144,11 +144,7 @@ export function ShareCard({ gameState, rounds, date }: ShareCardProps) {
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
                 <span style={{ display: "inline-flex", gap: 6, alignItems: "center" }}>
-                  {r.answerCorrect ? (
-                    <CheckMark size={17} />
-                  ) : (
-                    <XMark size={15} color="#b4532f" />
-                  )}
+                  {r.answerCorrect ? <CheckMark size={17} /> : <XMark size={15} color="#b4532f" />}
                   {r.fakeFactCorrect ? (
                     <CheckMark size={17} />
                   ) : (
