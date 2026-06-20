@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="112" fill="#f6f1e7"/>
+  <text
+    x="256" y="368"
+    font-family="'Libre Caslon Display', Georgia, 'Times New Roman', serif"
+    font-size="390"
+    font-weight="400"
+    text-anchor="middle"
+    fill="#20201c"
+  >F</text>
+  <path d="M82 415 C168 400 248 428 330 416 C363 411 386 414 400 418" stroke="#b4532f" stroke-width="16" stroke-linecap="round" fill="none"/>
+  <path d="M100 432 C158 424 220 436 282 428" stroke="#b4532f" stroke-width="11" stroke-linecap="round" fill="none" opacity="0.5"/>
+</svg>
