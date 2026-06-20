@@ -74,11 +74,13 @@ html, body { width: 1200px; height: 630px; overflow: hidden; }
 
 function iconHtml(size: number, withRounding: boolean) {
   const radius = withRounding ? Math.round(size * 0.219) : 0;
+  // Scale from design: 168px F in 220px icon. No padding-bottom — swash overlaps
+  // the F's base (position:absolute;bottom) just like the design does.
   const fontSize = Math.round(size * 0.762);
-  const swashW = Math.round(size * 0.684);
-  const swashH = Math.round(size * 0.109);
-  const swashBottom = Math.round(size * 0.027);
-  const strokeW = (6 * size) / 220;
+  const swashScale = fontSize / 168;
+  const swashW = Math.round(150 * swashScale);
+  const swashH = Math.round(24 * swashScale);
+  const swashBottom = Math.round(6 * swashScale);
   return `<!DOCTYPE html>
 <html>
 <head>
@@ -91,11 +93,11 @@ html, body { width: ${size}px; height: ${size}px; overflow: hidden; background: 
 </head>
 <body>
 <div style="width:${size}px;height:${size}px;border-radius:${radius}px;background:#f6f1e7;overflow:hidden;display:flex;align-items:center;justify-content:center;">
-  <div style="position:relative;line-height:1;padding-bottom:${swashH + 8}px;">
+  <div style="position:relative;line-height:1;">
     <div style="font:400 ${fontSize}px/1 'Libre Caslon Display',serif;color:#20201c;">F</div>
     <svg width="${swashW}" height="${swashH}" viewBox="0 0 150 24" fill="none"
          style="position:absolute;left:50%;transform:translateX(-50%);bottom:${swashBottom}px;width:${swashW}px;height:${swashH}px;">
-      <path d="M8 15C44 5 84 19 120 11C134 8 142 11 146 14" stroke="#b4532f" stroke-width="${strokeW}" stroke-linecap="round"/>
+      <path d="M8 15C44 5 84 19 120 11C134 8 142 11 146 14" stroke="#b4532f" stroke-width="6" stroke-linecap="round"/>
     </svg>
   </div>
 </div>
