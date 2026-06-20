@@ -27,6 +27,14 @@ export function App() {
   const date = todayDate();
 
   useEffect(() => {
+    if (window.location.pathname === "/reset") {
+      localStorage.removeItem(`gameState_${date}`);
+      window.location.replace("/");
+      return;
+    }
+  }, [date]);
+
+  useEffect(() => {
     fetch(`/api/questions?date=${date}`)
       .then((r) => {
         if (r.status === 404) throw new Error("no-questions");
