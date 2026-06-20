@@ -8,31 +8,33 @@ interface ShareCardProps {
   date: string;
 }
 
-function formatShareDate(dateStr: string): string {
+function formatDisplayDate(dateStr: string): string {
   const [year, month, day] = dateStr.split("-").map(Number);
   const d = new Date(year, month - 1, day);
-  return d.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+
+function formatShareDate(dateStr: string): string {
+  const [year, month, day] = dateStr.split("-").map(Number);
+  return `${month}/${day}/${String(year).slice(2)}`;
+}
+
+const SCORE_EMOJI = ["0️⃣", "1️⃣", "2️⃣", "3️⃣"] as const;
+function scoreToEmoji(n: number): string {
+  return SCORE_EMOJI[n] ?? "0️⃣";
 }
 
 function buildShareText(gameState: GameState, rounds: Round[], date: string): string {
-  const lines: string[] = [`Fibole • ${formatShareDate(date)}`];
-  lines.push(`Score: ${gameState.totalScore}/${maxScore(rounds.length)}`);
-  lines.push("");
-
-  gameState.rounds.forEach((r, i) => {
-    const answerEmoji = r.answerCorrect ? "✅" : "❌";
-    const fakeEmoji = r.fakeFactCorrect ? "✅" : "❌";
-    lines.push(
-      `Round ${i + 1}: ${answerEmoji} Answer (${r.answerScore}pts) • ${fakeEmoji} Fake Fact (${r.fakeFactScore}pt)`,
-    );
-  });
-
-  lines.push("");
-  lines.push(window.location.origin);
+  const lines = [
+    `Fibole • ${formatShareDate(date)}`,
+    `Score: ${gameState.totalScore}/${maxScore(rounds.length)}`,
+    "",
+    ...gameState.rounds.map(
+      (r) => `${scoreToEmoji(r.answerScore)}/${scoreToEmoji(r.fakeFactScore)}`,
+    ),
+    "",
+    "https://fibole.com",
+  ];
   return lines.join("\n");
 }
 
@@ -61,7 +63,7 @@ export function ShareCard({ gameState, rounds, date }: ShareCardProps) {
         <p className="text-4xl font-bold text-slate-900">
           {total}/{max}
         </p>
-        <p className="text-slate-500 mt-1 text-sm">{formatShareDate(date)}</p>
+        <p className="text-slate-500 mt-1 text-sm">{formatDisplayDate(date)}</p>
       </div>
 
       <div className="space-y-2">
