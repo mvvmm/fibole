@@ -39,8 +39,8 @@ export default {
         topic: q.topic,
         answer: q.answer,
         facts: JSON.parse(q.facts as string),
-        fake_fact_index: q.fake_fact_index,
-        fake_fact_true_subject: q.fake_fact_true_subject,
+        fib_index: q.fib_index,
+        fib_true_subject: q.fib_true_subject,
       }));
 
       return json({ date, rounds });

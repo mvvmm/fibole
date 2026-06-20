@@ -107,7 +107,7 @@ export function ShareCard({ gameState, rounds, date }: ShareCardProps) {
       {/* Round rows */}
       <div style={{ marginTop: 40 }}>
         {gameState.rounds.map((r, i) => {
-          const roundTotal = r.answerScore + r.fakeFactScore;
+          const roundTotal = r.answerScore + r.fibScore;
           return (
             <div
               key={i}
@@ -145,11 +145,7 @@ export function ShareCard({ gameState, rounds, date }: ShareCardProps) {
               <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
                 <span style={{ display: "inline-flex", gap: 6, alignItems: "center" }}>
                   {r.answerCorrect ? <CheckMark size={17} /> : <XMark size={15} color="#b4532f" />}
-                  {r.fakeFactCorrect ? (
-                    <CheckMark size={17} />
-                  ) : (
-                    <XMark size={15} color="#b4532f" />
-                  )}
+                  {r.fibCorrect ? <CheckMark size={17} /> : <XMark size={15} color="#b4532f" />}
                 </span>
                 <span
                   style={{

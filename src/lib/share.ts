@@ -23,9 +23,7 @@ export function buildShareText(gameState: GameState, rounds: Round[], date: stri
     `Fibole • ${formatShareDate(date)}`,
     `Score: ${gameState.totalScore}/${maxScore(rounds.length)}`,
     "",
-    ...gameState.rounds.map(
-      (r) => `${scoreToEmoji(r.answerScore)}/${scoreToEmoji(r.fakeFactScore)}`,
-    ),
+    ...gameState.rounds.map((r) => `${scoreToEmoji(r.answerScore)}/${scoreToEmoji(r.fibScore)}`),
     "",
     "https://fibole.com",
   ];

@@ -62,7 +62,7 @@ For each day × round (3 rounds/day), pick one unused entity from the lists belo
 
 ## Step 3 — Fetch Wikipedia content
 
-For each round you need two entities: the **main entity** (the answer) and a **donor entity** (same category, also unused — used only for the fake fact, not inserted as an answer).
+For each round you need two entities: the **main entity** (the answer) and a **donor entity** (same category, also unused — used only for the fib, not inserted as an answer).
 
 Fetch the Wikipedia REST summary for each:
 
@@ -77,15 +77,15 @@ Use the `extract` field from the response. If the fetch fails or returns no extr
 Using **only** the Wikipedia extract text (no outside knowledge):
 
 - **3 true facts** about the main entity — specific, verifiable details drawn directly from the extract. 1–2 sentences each. Must be grounded in the text.
-- **1 fake fact** — a specific detail drawn from the **donor entity's** Wikipedia extract, presented as if it could describe the main entity's category. Do NOT name the donor entity in the fake fact.
+- **1 fib** — a specific detail drawn from the **donor entity's** Wikipedia extract, presented as if it could describe the main entity's category. Do NOT name the donor entity in the fib.
 
-Mix all 4 facts in random order. Record:
-- `fake_fact_index` — 0-based index of the fake fact in the array
-- `fake_fact_true_subject` — the donor entity's name (shown to players after the round)
+Mix all 4 items in random order. Record:
+- `fib_index` — 0-based index of the fib in the array
+- `fib_true_subject` — the donor entity's name (shown to players after the round)
 
 Quality bar:
 - Facts must be traceable to the Wikipedia extract — no invention
-- Fake fact must be a real fact about the donor entity, not made up
+- Fib must be a real fact about the donor entity, not made up
 - No single fact should give away the answer on its own
 
 ## Step 5 — Insert into D1
@@ -96,8 +96,8 @@ curl -s -X POST \
   -H "Authorization: Bearer ${API_TOKEN}" \
   -H "Content-Type: application/json" \
   -d '{
-    "sql": "INSERT OR IGNORE INTO questions (date, round_number, topic, answer, facts, fake_fact_index, fake_fact_true_subject) VALUES (?, ?, ?, ?, ?, ?, ?)",
-    "params": ["DATE", ROUND, "TOPIC", "ANSWER", "[\"fact0\",\"fact1\",\"fact2\",\"fact3\"]", FAKE_INDEX, "FAKE_SUBJECT"]
+    "sql": "INSERT OR IGNORE INTO questions (date, round_number, topic, answer, facts, fib_index, fib_true_subject) VALUES (?, ?, ?, ?, ?, ?, ?)",
+    "params": ["DATE", ROUND, "TOPIC", "ANSWER", "[\"fact0\",\"fact1\",\"fact2\",\"fact3\"]", FIB_INDEX, "FIB_SUBJECT"]
   }'
 ```
 

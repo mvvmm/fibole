@@ -1,6 +1,6 @@
 # AGENTS.md — Fibole
 
-Daily fact-spotting game. Players see 4 facts about a topic — 3 true, 1 fake — and must identify the answer (who/what the true facts describe) and spot the fake. Three rounds per day. No logins; all user state lives in localStorage.
+Daily fact-spotting game. Players see 4 items about a topic — 3 true facts, 1 fib — and must identify the answer (who/what the true facts describe) and spot the fib. Three rounds per day. No logins; all user state lives in localStorage.
 
 See [design.md](design.md) for the visual language, typography, color palette, ink mark inventory, copy rules, and screen-state map.
 
@@ -90,7 +90,7 @@ Schema: `migrations/0001_init.sql` — one `questions` table with `UNIQUE(date, 
 
 Use the `.claude/skills/generate-questions.md` skill. This is the only supported way to populate D1 — there is no script that calls an external API; Claude Code does the work directly:
 1. Fetches Wikipedia summaries for each entity
-2. Derives 3 true facts + 1 fake fact from the Wikipedia text
+2. Derives 3 true facts + 1 fib from the Wikipedia text
 3. Inserts via Cloudflare D1 REST API
 
 ```
@@ -114,8 +114,8 @@ Response:
       "topic": "US Presidents",
       "answer": "Theodore Roosevelt",
       "facts": ["fact0", "fact1", "fact2", "fact3"],
-      "fake_fact_index": 2,
-      "fake_fact_true_subject": "John F. Kennedy"
+      "fib_index": 2,
+      "fib_true_subject": "John F. Kennedy"
     }
   ]
 }
@@ -126,7 +126,7 @@ Returns 404 if no questions exist for the date.
 ## Game Logic
 
 - **Answer phase**: Up to 3 guesses. Score: 3 (first guess) / 2 / 1 / 0.
-- **Fake-fact phase**: 1 tap to identify the fake. Score: 1 / 0.
+- **Fib phase**: 1 tap to identify the fib. Score: 1 / 0.
 - **Max score**: 12 per day (3 rounds × 4 pts).
 - **State**: `localStorage` key `gameState_YYYY-MM-DD`. Completed games show results on reload.
 
@@ -143,5 +143,5 @@ Returns 404 if no questions exist for the date.
 
 - `pnpm db:migrate:prod` requires `--remote` (already set in package.json) — without it wrangler silently targets local
 - The Vite plugin redirects wrangler config to `dist/factual/wrangler.json` at build time; don't edit that file
-- Questions are served including the answer and fake index — no anti-cheat, by design (no user accounts)
+- Questions are served including the answer and fib index — no anti-cheat, by design (no user accounts)
 - The `facts` column is stored as a JSON string; parse it with `JSON.parse` on read

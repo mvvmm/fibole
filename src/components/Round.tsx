@@ -21,9 +21,9 @@ interface RoundProps {
   roundState: RoundState;
   roundNumber: number;
   totalRounds: number;
-  phase: "answer" | "fake-fact";
+  phase: "answer" | "fib";
   onSubmitAnswer: (guess: string) => void;
-  onSubmitFakeFact: (index: number) => void;
+  onSubmitFib: (index: number) => void;
   onNext: () => void;
 }
 
@@ -34,14 +34,14 @@ export function Round({
   totalRounds,
   phase,
   onSubmitAnswer,
-  onSubmitFakeFact,
+  onSubmitFib,
   onNext,
 }: RoundProps) {
-  const [pendingFakeIndex, setPendingFakeIndex] = useState<number | null>(null);
+  const [pendingFibIndex, setPendingFibIndex] = useState<number | null>(null);
 
-  const isResult = roundState.fakeFactPhaseComplete;
+  const isResult = roundState.fibPhaseComplete;
   const isAnswerPhase = phase === "answer";
-  const isFakeSelecting = phase === "fake-fact" && !isResult;
+  const inFibSelection = phase === "fib" && !isResult;
   const isLastRound = roundNumber === totalRounds;
 
   const lastGuessWrong =
@@ -171,10 +171,10 @@ export function Round({
     );
   }
 
-  // ── FAKE SELECTING PHASE ─────────────────────────────────────────────
-  if (isFakeSelecting) {
+  // ── FIB SELECTION PHASE ──────────────────────────────────────────────
+  if (inFibSelection) {
     const answerCorrect = roundState.answerCorrect;
-    const headingText = answerCorrect ? "Now — which fact is the fake?" : "Still — spot the fake?";
+    const headingText = answerCorrect ? "Now — which is the fib?" : "Still — spot the fib?";
     const hintText = answerCorrect ? "one shot at this" : "a point of pride is still a point";
     const Underline = answerCorrect ? MediumUnderline : ShortUnderline;
 
@@ -273,29 +273,29 @@ export function Round({
           <FactList
             facts={roundData.facts}
             mode="selecting"
-            selectedIndex={pendingFakeIndex}
-            onSelect={setPendingFakeIndex}
+            selectedIndex={pendingFibIndex}
+            onSelect={setPendingFibIndex}
           />
         </div>
 
         <button
-          onClick={() => pendingFakeIndex !== null && onSubmitFakeFact(pendingFakeIndex)}
-          disabled={pendingFakeIndex === null}
+          onClick={() => pendingFibIndex !== null && onSubmitFib(pendingFibIndex)}
+          disabled={pendingFibIndex === null}
           style={{
             marginTop: 24,
             width: "100%",
             border: "none",
-            background: pendingFakeIndex !== null ? "#20201c" : "#c9c1b4",
+            background: pendingFibIndex !== null ? "#20201c" : "#c9c1b4",
             color: "#f6f1e7",
             padding: 16,
             borderRadius: 4,
             font: "600 15px/1 'Hanken Grotesk', sans-serif",
             letterSpacing: "0.04em",
-            cursor: pendingFakeIndex !== null ? "pointer" : "default",
+            cursor: pendingFibIndex !== null ? "pointer" : "default",
             transition: "background 0.15s",
           }}
         >
-          Lock in the fake
+          Lock in the fib
         </button>
 
         <div
@@ -313,19 +313,19 @@ export function Round({
   }
 
   // ── RESULT PHASE ─────────────────────────────────────────────────────
-  const roundTotal = roundState.answerScore + roundState.fakeFactScore;
-  const { answerCorrect, fakeFactCorrect, answerScore, fakeFactScore } = roundState;
+  const roundTotal = roundState.answerScore + roundState.fibScore;
+  const { answerCorrect, fibCorrect, answerScore, fibScore } = roundState;
 
   const headline =
-    answerCorrect && fakeFactCorrect
+    answerCorrect && fibCorrect
       ? "Both right."
-      : !answerCorrect && fakeFactCorrect
-        ? "Fake spotted."
-        : answerCorrect && !fakeFactCorrect
+      : !answerCorrect && fibCorrect
+        ? "Fib spotted."
+        : answerCorrect && !fibCorrect
           ? "Half marks."
           : "Tomorrow's yours.";
 
-  const headlineColor = answerCorrect && fakeFactCorrect ? "#2f4a2e" : "#20201c";
+  const headlineColor = answerCorrect && fibCorrect ? "#2f4a2e" : "#20201c";
 
   return (
     <div>
@@ -383,9 +383,9 @@ export function Round({
         <FactList
           facts={roundData.facts}
           mode="revealed"
-          selectedIndex={roundState.fakeFactGuess}
-          correctIndex={roundData.fake_fact_index}
-          fakeSubject={roundData.fake_fact_true_subject}
+          selectedIndex={roundState.fibGuess}
+          correctIndex={roundData.fib_index}
+          fibSubject={roundData.fib_true_subject}
         />
       </div>
 
@@ -416,7 +416,7 @@ export function Round({
               marginTop: 6,
             }}
           >
-            Answer {answerScore}&nbsp;·&nbsp;Fake {fakeFactScore}
+            Answer {answerScore}&nbsp;·&nbsp;Fib {fibScore}
           </div>
         </div>
         <div style={{ position: "relative" }}>

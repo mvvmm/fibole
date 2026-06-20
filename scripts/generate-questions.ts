@@ -65,12 +65,12 @@ async function insertQuestion(
   topic: string,
   answer: string,
   facts: string[],
-  fakeFactIndex: number,
-  fakeFactTrueSubject: string
+  fibIndex: number,
+  fibTrueSubject: string
 ): Promise<void> {
   await d1Query(
     `INSERT OR IGNORE INTO questions
-       (date, round_number, topic, answer, facts, fake_fact_index, fake_fact_true_subject)
+       (date, round_number, topic, answer, facts, fib_index, fib_true_subject)
      VALUES (?, ?, ?, ?, ?, ?, ?)`,
     [
       date,
@@ -78,8 +78,8 @@ async function insertQuestion(
       topic,
       answer,
       JSON.stringify(facts),
-      fakeFactIndex,
-      fakeFactTrueSubject,
+      fibIndex,
+      fibTrueSubject,
     ]
   );
 }
@@ -104,8 +104,8 @@ async function fetchWikipediaSummary(title: string): Promise<string> {
 
 interface FactsResult {
   facts: string[];
-  fake_index: number;
-  fake_subject: string;
+  fib_index: number;
+  fib_subject: string;
 }
 
 async function generateFacts(
@@ -125,14 +125,14 @@ Wikipedia summary: ${wikiContent.slice(0, 2000)}
 
 Task:
 1. Generate exactly 3 true, specific, verifiable facts about "${entity}". Each fact should be 1-2 sentences, interesting, and clearly verifiable from the Wikipedia summary above.
-2. Generate exactly 1 fact that is TRUE about "${otherEntity}" (another ${entityType}), but presented as if it could be about the same category. Do NOT mention "${otherEntity}" in the fake fact itself.
-3. Mix the 4 facts in a random order (don't put the fake fact last every time).
+2. Generate exactly 1 fib — a fact that is TRUE about "${otherEntity}" (another ${entityType}), but presented as if it could be about the same category. Do NOT mention "${otherEntity}" in the fib itself.
+3. Mix the 4 items in a random order (don't put the fib last every time).
 
 Return ONLY valid JSON with this exact shape:
 {
   "facts": ["fact1", "fact2", "fact3", "fact4"],
-  "fake_index": <0-3, the index of the fake fact>,
-  "fake_subject": "${otherEntity}"
+  "fib_index": <0-3, the index of the fib>,
+  "fib_subject": "${otherEntity}"
 }`;
 
   const message = await anthropic.messages.create({
@@ -151,8 +151,8 @@ Return ONLY valid JSON with this exact shape:
   if (
     !Array.isArray(parsed.facts) ||
     parsed.facts.length !== 4 ||
-    typeof parsed.fake_index !== "number" ||
-    !parsed.fake_subject
+    typeof parsed.fib_index !== "number" ||
+    !parsed.fib_subject
   ) {
     throw new Error(`Invalid response shape: ${text}`);
   }
@@ -249,12 +249,12 @@ async function main() {
           cat.name,
           entity,
           result.facts,
-          result.fake_index,
-          result.fake_subject
+          result.fib_index,
+          result.fib_subject
         );
 
         usedAnswers.add(entity.toLowerCase());
-        console.log(`    ✓ Inserted (fake fact #${result.fake_index + 1}, actually about ${result.fake_subject})`);
+        console.log(`    ✓ Inserted (fib #${result.fib_index + 1}, actually about ${result.fib_subject})`);
 
         // Respect rate limits
         await new Promise((r) => setTimeout(r, 500));
