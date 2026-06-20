@@ -57,6 +57,15 @@ pnpm db:migrate:local          # apply schema to local D1
 
 The app reads today's date as `new Date().toLocaleDateString('en-CA')` → `YYYY-MM-DD` and hits `/api/questions?date=<date>`.
 
+## Testing
+
+```bash
+pnpm test        # Vitest in watch mode
+pnpm test:run    # Single pass (good for CI)
+```
+
+Tests live alongside source files as `*.test.ts`. Config: `vitest.config.ts` (separate from `vite.config.ts` — omits the Cloudflare plugin so tests run in a plain Node environment).
+
 ## Build & Deploy
 
 ```bash
