@@ -76,10 +76,10 @@ Use the `extract` field from the response. If the fetch fails or returns no extr
 
 Using **only** the Wikipedia extract text (no outside knowledge):
 
-- **4 true facts** about the main entity — specific, verifiable details drawn directly from the extract. 1–2 sentences each. Must be grounded in the text.
+- **3 true facts** about the main entity — specific, verifiable details drawn directly from the extract. 1–2 sentences each. Must be grounded in the text.
 - **1 fake fact** — a specific detail drawn from the **donor entity's** Wikipedia extract, presented as if it could describe the main entity's category. Do NOT name the donor entity in the fake fact.
 
-Mix all 5 facts in random order. Record:
+Mix all 4 facts in random order. Record:
 - `fake_fact_index` — 0-based index of the fake fact in the array
 - `fake_fact_true_subject` — the donor entity's name (shown to players after the round)
 
@@ -97,7 +97,7 @@ curl -s -X POST \
   -H "Content-Type: application/json" \
   -d '{
     "sql": "INSERT OR IGNORE INTO questions (date, round_number, topic, answer, facts, fake_fact_index, fake_fact_true_subject) VALUES (?, ?, ?, ?, ?, ?, ?)",
-    "params": ["DATE", ROUND, "TOPIC", "ANSWER", "[\"fact0\",\"fact1\",\"fact2\",\"fact3\",\"fact4\"]", FAKE_INDEX, "FAKE_SUBJECT"]
+    "params": ["DATE", ROUND, "TOPIC", "ANSWER", "[\"fact0\",\"fact1\",\"fact2\",\"fact3\"]", FAKE_INDEX, "FAKE_SUBJECT"]
   }'
 ```
 

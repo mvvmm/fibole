@@ -1,8 +1,20 @@
+import { useState } from "react";
 import type { Round as RoundData, RoundState } from "@/types";
 import { FactList } from "./FactList";
 import { AnswerInput } from "./AnswerInput";
+import {
+  BrandSwash,
+  CheckMark,
+  LongUnderline,
+  MediumUnderline,
+  ShortUnderline,
+  ScoreUnderline,
+  TopicSpark,
+} from "./InkMarks";
 
 const MAX_GUESSES = 3;
+
+const ORDINALS = ["first", "second", "third"];
 
 interface RoundProps {
   roundData: RoundData;
@@ -25,139 +37,379 @@ export function Round({
   onSubmitFakeFact,
   onNext,
 }: RoundProps) {
-  const showResult = roundState.fakeFactPhaseComplete;
-  const inFakeFactSelection = phase === "fake-fact" && !showResult;
+  const [pendingFakeIndex, setPendingFakeIndex] = useState<number | null>(null);
+
+  const isResult = roundState.fakeFactPhaseComplete;
+  const isAnswerPhase = phase === "answer";
+  const isFakeSelecting = phase === "fake-fact" && !isResult;
+  const isLastRound = roundNumber === totalRounds;
 
   const lastGuessWrong =
     roundState.answerGuesses.length > 0 &&
     !roundState.answerCorrect &&
     !roundState.answerPhaseComplete;
 
-  return (
-    <div className="space-y-5">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
-          Round {roundNumber} of {totalRounds}
-        </span>
-        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
-          {roundData.topic}
-        </span>
-      </div>
+  const lastWrongGuess = lastGuessWrong
+    ? roundState.answerGuesses[roundState.answerGuesses.length - 1]
+    : undefined;
 
-      {/* Answer reveal — shown once the answer phase is done */}
-      {roundState.answerPhaseComplete && (
-        <div
-          className={`rounded-lg px-4 py-3 text-center text-sm font-semibold ${roundState.answerCorrect ? "bg-green-50 text-green-700" : "bg-slate-100 text-slate-600"}`}
-        >
-          {roundState.answerCorrect
-            ? `✓ ${roundData.answer}`
-            : `The answer was: ${roundData.answer}`}
-        </div>
-      )}
+  const solvedOrdinal = ORDINALS[roundState.answerGuesses.length - 1] ?? "third";
 
-      {/* Instructions */}
-      {!showResult && (
-        <p className="text-sm text-slate-500 text-center">
-          {phase === "answer"
-            ? "4 of these facts are true. 1 is fake. Who or what do the 4 true facts describe?"
-            : "Now tap the fact you think is fake."}
-        </p>
-      )}
-
-      {/* Facts */}
-      <FactList
-        facts={roundData.facts}
-        mode={showResult ? "revealed" : inFakeFactSelection ? "selecting" : "reading"}
-        selectedIndex={roundState.fakeFactGuess}
-        correctIndex={roundData.fake_fact_index}
-        onSelect={inFakeFactSelection ? onSubmitFakeFact : undefined}
-      />
-
-      {/* Answer input */}
-      {phase === "answer" && !roundState.answerPhaseComplete && (
-        <AnswerInput
-          onSubmit={onSubmitAnswer}
-          guessCount={roundState.answerGuesses.length}
-          maxGuesses={MAX_GUESSES}
-          disabled={roundState.answerGuesses.length >= MAX_GUESSES}
-          lastGuessWrong={lastGuessWrong}
-        />
-      )}
-
-      {/* Fake-fact hint */}
-      {inFakeFactSelection && (
-        <p className="text-xs text-slate-400 text-center">
-          You have 1 chance to identify the fake fact.
-        </p>
-      )}
-
-      {/* Round result */}
-      {showResult && (
-        <RoundResult
-          roundData={roundData}
-          roundState={roundState}
-          isLastRound={roundNumber === totalRounds}
-          onNext={onNext}
-        />
-      )}
+  const RoundTopicRow = (
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <span
+        style={{
+          font: "700 11px/1 'Hanken Grotesk', sans-serif",
+          letterSpacing: "0.18em",
+          textTransform: "uppercase",
+          color: "#a39a87",
+        }}
+      >
+        Round {roundNumber} / {totalRounds}
+      </span>
+      <span
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 7,
+          font: "italic 400 15px/1 'Newsreader', serif",
+          color: "#b4532f",
+          whiteSpace: "nowrap",
+        }}
+      >
+        <TopicSpark />
+        {roundData.topic}
+      </span>
     </div>
   );
-}
 
-function RoundResult({
-  roundData,
-  roundState,
-  isLastRound,
-  onNext,
-}: {
-  roundData: RoundData;
-  roundState: RoundState;
-  isLastRound: boolean;
-  onNext: () => void;
-}) {
-  const roundTotal = roundState.answerScore + roundState.fakeFactScore;
-
-  return (
-    <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-3">
-      <div className="flex items-start justify-between gap-4">
-        <div className="space-y-1.5 min-w-0">
-          <p className="text-sm font-medium">
-            {roundState.answerCorrect ? (
-              <span className="text-green-600">✓ {roundData.answer}</span>
-            ) : (
-              <span className="text-slate-500">Answer: {roundData.answer}</span>
-            )}
-          </p>
-          <p className="text-sm font-medium">
-            {roundState.fakeFactCorrect ? (
-              <span className="text-green-600">✓ Fake fact identified!</span>
-            ) : (
-              <span className="text-slate-500">Fake was fact #{roundData.fake_fact_index + 1}</span>
-            )}
-          </p>
-          <p className="text-xs text-slate-400 leading-relaxed">
-            That fact is actually true of:{" "}
-            <span className="font-medium">{roundData.fake_fact_true_subject}</span>
-          </p>
+  // ── ANSWER PHASE ────────────────────────────────────────────────────
+  if (isAnswerPhase) {
+    return (
+      <div>
+        <div style={{ textAlign: "center" }}>
+          <div
+            style={{
+              font: "400 30px/1 'Libre Caslon Display', serif",
+              color: "#20201c",
+            }}
+          >
+            Fibole
+          </div>
+          <BrandSwash style={{ display: "block", margin: "6px auto 0" }} />
         </div>
-        <div className="text-right flex-shrink-0">
-          <p className="text-3xl font-bold text-slate-900">{roundTotal}</p>
-          <p className="text-xs text-slate-400">pts</p>
+
+        <div style={{ marginTop: 28 }}>{RoundTopicRow}</div>
+
+        <div style={{ position: "relative", marginTop: 24 }}>
+          <div
+            style={{
+              font: "400 26px/1.3 'Libre Caslon Display', serif",
+              color: "#20201c",
+            }}
+          >
+            Who or what do these
+            <br />
+            facts describe?
+          </div>
+          <LongUnderline style={{ position: "absolute", left: 0, bottom: -9, display: "block" }} />
+        </div>
+
+        <div style={{ marginTop: 30 }}>
+          <FactList facts={roundData.facts} mode="reading" />
+        </div>
+
+        <div style={{ marginTop: 24 }}>
+          <AnswerInput
+            onSubmit={onSubmitAnswer}
+            guessCount={roundState.answerGuesses.length}
+            maxGuesses={MAX_GUESSES}
+            disabled={false}
+            lastGuessWrong={lastGuessWrong}
+            lastWrongGuess={lastWrongGuess}
+          />
         </div>
       </div>
+    );
+  }
 
-      <div className="flex gap-2 text-xs text-slate-400">
-        <span>Answer: {roundState.answerScore}pts</span>
-        <span>·</span>
-        <span>Fake fact: {roundState.fakeFactScore}pt</span>
+  // ── FAKE SELECTING PHASE ─────────────────────────────────────────────
+  if (isFakeSelecting) {
+    const answerCorrect = roundState.answerCorrect;
+    const headingText = answerCorrect ? "Now — which fact is the fake?" : "Still — spot the fake?";
+    const hintText = answerCorrect ? "one shot at this" : "a point of pride is still a point";
+    const Underline = answerCorrect ? MediumUnderline : ShortUnderline;
+
+    return (
+      <div>
+        {RoundTopicRow}
+
+        {/* Reveal banner */}
+        <div
+          style={{
+            marginTop: 22,
+            padding: "14px 0",
+            borderTop: "1px solid #ddd2bd",
+            borderBottom: "1px solid #ddd2bd",
+            display: "flex",
+            alignItems: "center",
+            gap: 14,
+            justifyContent: answerCorrect ? undefined : "space-between",
+          }}
+        >
+          {answerCorrect ? (
+            <>
+              <CheckMark size={26} />
+              <div>
+                <div
+                  style={{
+                    font: "700 10px/1 'Hanken Grotesk', sans-serif",
+                    letterSpacing: "0.16em",
+                    textTransform: "uppercase",
+                    color: "#6f8a5f",
+                  }}
+                >
+                  Solved · {solvedOrdinal} try
+                </div>
+                <div
+                  style={{
+                    font: "400 26px/1 'Libre Caslon Display', serif",
+                    color: "#20201c",
+                    marginTop: 5,
+                  }}
+                >
+                  {roundData.answer}
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div>
+                <div
+                  style={{
+                    font: "700 10px/1 'Hanken Grotesk', sans-serif",
+                    letterSpacing: "0.16em",
+                    textTransform: "uppercase",
+                    color: "#a39a87",
+                  }}
+                >
+                  Answer revealed
+                </div>
+                <div
+                  style={{
+                    font: "400 26px/1 'Libre Caslon Display', serif",
+                    color: "#20201c",
+                    marginTop: 5,
+                  }}
+                >
+                  {roundData.answer}
+                </div>
+              </div>
+              <span
+                style={{
+                  font: "600 17px/1 'Caveat', cursive",
+                  color: "#b09c7c",
+                  transform: "rotate(-5deg)",
+                }}
+              >
+                no points
+              </span>
+            </>
+          )}
+        </div>
+
+        {/* Heading */}
+        <div style={{ position: "relative", marginTop: 26 }}>
+          <div
+            style={{
+              font: "400 23px/1.25 'Libre Caslon Display', serif",
+              color: "#20201c",
+            }}
+          >
+            {headingText}
+          </div>
+          <Underline style={{ position: "absolute", left: 0, bottom: -8, display: "block" }} />
+        </div>
+
+        <div style={{ marginTop: 28 }}>
+          <FactList
+            facts={roundData.facts}
+            mode="selecting"
+            selectedIndex={pendingFakeIndex}
+            onSelect={setPendingFakeIndex}
+          />
+        </div>
+
+        <button
+          onClick={() => pendingFakeIndex !== null && onSubmitFakeFact(pendingFakeIndex)}
+          disabled={pendingFakeIndex === null}
+          style={{
+            marginTop: 24,
+            width: "100%",
+            border: "none",
+            background: pendingFakeIndex !== null ? "#20201c" : "#c9c1b4",
+            color: "#f6f1e7",
+            padding: 16,
+            borderRadius: 4,
+            font: "600 15px/1 'Hanken Grotesk', sans-serif",
+            letterSpacing: "0.04em",
+            cursor: pendingFakeIndex !== null ? "pointer" : "default",
+            transition: "background 0.15s",
+          }}
+        >
+          Lock in the fake
+        </button>
+
+        <div
+          style={{
+            textAlign: "center",
+            font: "500 15px/1 'Caveat', cursive",
+            color: "#a39a87",
+            marginTop: 12,
+          }}
+        >
+          {hintText}
+        </div>
+      </div>
+    );
+  }
+
+  // ── RESULT PHASE ─────────────────────────────────────────────────────
+  const roundTotal = roundState.answerScore + roundState.fakeFactScore;
+  const { answerCorrect, fakeFactCorrect, answerScore, fakeFactScore } = roundState;
+
+  const headline =
+    answerCorrect && fakeFactCorrect
+      ? "Both right."
+      : !answerCorrect && fakeFactCorrect
+        ? "Fake spotted."
+        : answerCorrect && !fakeFactCorrect
+          ? "Half marks."
+          : "Tomorrow's yours.";
+
+  const headlineColor = answerCorrect && fakeFactCorrect ? "#2f4a2e" : "#20201c";
+
+  return (
+    <div>
+      {RoundTopicRow}
+
+      {/* Compact reveal */}
+      <div
+        style={{
+          marginTop: 20,
+          padding: "12px 0",
+          borderTop: "1px solid #ddd2bd",
+          borderBottom: "1px solid #ddd2bd",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          {answerCorrect && <CheckMark size={22} />}
+          {!answerCorrect && (
+            <span
+              style={{
+                font: "700 10px/1 'Hanken Grotesk', sans-serif",
+                letterSpacing: "0.16em",
+                textTransform: "uppercase",
+                color: "#a39a87",
+              }}
+            >
+              Answer
+            </span>
+          )}
+          <div
+            style={{
+              font: "400 24px/1 'Libre Caslon Display', serif",
+              color: "#20201c",
+            }}
+          >
+            {roundData.answer}
+          </div>
+        </div>
+        {answerCorrect && (
+          <span
+            style={{
+              font: "600 17px/1 'Caveat', cursive",
+              color: "#6f8a5f",
+            }}
+          >
+            {solvedOrdinal} try
+          </span>
+        )}
+      </div>
+
+      {/* Fact list */}
+      <div style={{ marginTop: 14 }}>
+        <FactList
+          facts={roundData.facts}
+          mode="revealed"
+          selectedIndex={roundState.fakeFactGuess}
+          correctIndex={roundData.fake_fact_index}
+          fakeSubject={roundData.fake_fact_true_subject}
+        />
+      </div>
+
+      {/* Score section */}
+      <div
+        style={{
+          marginTop: 16,
+          display: "flex",
+          alignItems: "flex-end",
+          justifyContent: "space-between",
+          paddingTop: 16,
+          borderTop: "1.5px solid #20201c",
+        }}
+      >
+        <div>
+          <div
+            style={{
+              font: "400 25px/1 'Libre Caslon Display', serif",
+              color: headlineColor,
+            }}
+          >
+            {headline}
+          </div>
+          <div
+            style={{
+              font: "italic 400 15px/1.3 'Newsreader', serif",
+              color: "#8a8472",
+              marginTop: 6,
+            }}
+          >
+            Answer {answerScore}&nbsp;·&nbsp;Fake {fakeFactScore}
+          </div>
+        </div>
+        <div style={{ position: "relative" }}>
+          <div
+            style={{
+              font: "800 46px/0.9 'Hanken Grotesk', sans-serif",
+              color: roundTotal > 0 ? "#20201c" : "#b8b0a0",
+            }}
+          >
+            {roundTotal > 0 ? `+${roundTotal}` : "0"}
+          </div>
+          {roundTotal > 0 && <ScoreUnderline />}
+        </div>
       </div>
 
       <button
         onClick={onNext}
-        className="w-full rounded-lg bg-slate-900 py-3 text-sm font-semibold text-white active:scale-[0.98] transition-transform"
+        style={{
+          marginTop: 18,
+          width: "100%",
+          border: "none",
+          background: "#20201c",
+          color: "#f6f1e7",
+          padding: 16,
+          borderRadius: 4,
+          font: "600 15px/1 'Hanken Grotesk', sans-serif",
+          letterSpacing: "0.04em",
+          cursor: "pointer",
+        }}
       >
-        {isLastRound ? "See Final Score →" : "Next Round →"}
+        {isLastRound ? "See results" : "Next round →"}
       </button>
     </div>
   );

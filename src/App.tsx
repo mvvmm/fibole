@@ -3,10 +3,22 @@ import type { QuestionsData } from "./types";
 import { Game } from "./components/Game";
 
 function todayDate(): string {
-  return new Date().toLocaleDateString("en-CA"); // YYYY-MM-DD in local time
+  return new Date().toLocaleDateString("en-CA");
 }
 
 type Status = "loading" | "loaded" | "error" | "no-questions";
+
+const shell: React.CSSProperties = {
+  minHeight: "100svh",
+  background: "#f6f1e7",
+  fontFamily: "'Hanken Grotesk', sans-serif",
+};
+
+const inner: React.CSSProperties = {
+  maxWidth: 430,
+  margin: "0 auto",
+  padding: "36px 28px 56px",
+};
 
 export function App() {
   const [status, setStatus] = useState<Status>("loading");
@@ -36,36 +48,82 @@ export function App() {
   }, [date]);
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
-      <header className="bg-white border-b border-slate-200 px-4 py-4 text-center">
-        <h1 className="text-xl font-bold tracking-tight text-slate-900">Fibole</h1>
-        <p className="text-xs text-slate-400 mt-0.5">Daily facts challenge</p>
-      </header>
-
-      <main className="flex-1 px-4 py-6 max-w-lg mx-auto w-full">
+    <div style={shell}>
+      <div style={inner}>
         {status === "loading" && (
-          <div className="flex flex-col items-center gap-3 py-16 text-slate-400">
-            <div className="w-8 h-8 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin" />
-            <p className="text-sm">Loading today's challenge…</p>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 12,
+              paddingTop: 80,
+            }}
+          >
+            <div
+              style={{
+                width: 28,
+                height: 28,
+                border: "2px solid #e2d9c6",
+                borderTopColor: "#b4532f",
+                borderRadius: "50%",
+                animation: "spin 0.8s linear infinite",
+              }}
+            />
+            <p
+              style={{ font: "italic 400 16px/1 'Newsreader', serif", color: "#a39a87", margin: 0 }}
+            >
+              Loading today's challenge…
+            </p>
           </div>
         )}
 
         {status === "error" && (
-          <div className="text-center py-16 text-slate-500">
-            <p className="text-lg font-semibold">Something went wrong</p>
-            <p className="text-sm mt-1 text-slate-400">{error}</p>
+          <div style={{ textAlign: "center", paddingTop: 80 }}>
+            <p
+              style={{
+                font: "400 28px/1.1 'Libre Caslon Display', serif",
+                color: "#20201c",
+                margin: "0 0 8px",
+              }}
+            >
+              Something went wrong
+            </p>
+            <p
+              style={{
+                font: "400 14px/1.4 'Hanken Grotesk', sans-serif",
+                color: "#a39a87",
+                margin: 0,
+              }}
+            >
+              {error}
+            </p>
           </div>
         )}
 
         {status === "no-questions" && (
-          <div className="text-center py-16 text-slate-500">
-            <p className="text-lg font-semibold">No challenge today</p>
-            <p className="text-sm mt-1 text-slate-400">Check back tomorrow!</p>
+          <div style={{ textAlign: "center", paddingTop: 80 }}>
+            <p
+              style={{
+                font: "400 28px/1.1 'Libre Caslon Display', serif",
+                color: "#20201c",
+                margin: "0 0 8px",
+              }}
+            >
+              No challenge today
+            </p>
+            <p
+              style={{ font: "italic 400 15px/1 'Newsreader', serif", color: "#a39a87", margin: 0 }}
+            >
+              Check back tomorrow!
+            </p>
           </div>
         )}
 
         {status === "loaded" && data && <Game data={data} />}
-      </main>
+      </div>
+
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }

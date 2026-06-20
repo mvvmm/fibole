@@ -1,6 +1,8 @@
 # AGENTS.md — Fibole
 
-Daily fact-spotting game. Players see 5 facts about a topic — 4 true, 1 fake — and must identify the answer (who/what the true facts describe) and spot the fake. Three rounds per day. No logins; all user state lives in localStorage.
+Daily fact-spotting game. Players see 4 facts about a topic — 3 true, 1 fake — and must identify the answer (who/what the true facts describe) and spot the fake. Three rounds per day. No logins; all user state lives in localStorage.
+
+See [design.md](design.md) for the visual language, typography, color palette, ink mark inventory, copy rules, and screen-state map.
 
 ## Stack
 
@@ -15,7 +17,7 @@ Daily fact-spotting game. Players see 5 facts about a topic — 4 true, 1 fake �
 ```
 src/               React SPA
   App.tsx          Loads today's questions, routes completed vs active game
-  components/      Game, Round, FactList, AnswerInput, ShareCard
+  components/      Game, Round, FactList, AnswerInput, ShareCard, InkMarks
   hooks/           useGameState.ts — reads/writes localStorage
   lib/             scoring.ts, utils.ts
   types.ts
@@ -88,7 +90,7 @@ Schema: `migrations/0001_init.sql` — one `questions` table with `UNIQUE(date, 
 
 Use the `.claude/skills/generate-questions.md` skill. This is the only supported way to populate D1 — there is no script that calls an external API; Claude Code does the work directly:
 1. Fetches Wikipedia summaries for each entity
-2. Derives 4 true facts + 1 fake fact from the Wikipedia text
+2. Derives 3 true facts + 1 fake fact from the Wikipedia text
 3. Inserts via Cloudflare D1 REST API
 
 ```
@@ -111,7 +113,7 @@ Response:
       "round_number": 1,
       "topic": "US Presidents",
       "answer": "Theodore Roosevelt",
-      "facts": ["fact0", "fact1", "fact2", "fact3", "fact4"],
+      "facts": ["fact0", "fact1", "fact2", "fact3"],
       "fake_fact_index": 2,
       "fake_fact_true_subject": "John F. Kennedy"
     }
@@ -133,7 +135,7 @@ Returns 404 if no questions exist for the date.
 - TypeScript throughout (strict)
 - Path alias `@/` → `src/`
 - No default exports on components — named exports only
-- Tailwind utility classes inline, no CSS modules
+- UI components use inline `style` props for design-token values (custom colors, fonts, px sizes); Tailwind is kept for global resets only
 - No external state management — React state + localStorage only
 - `@cloudflare/workers-types` for Worker type bindings (`Env` in `worker/types.ts`)
 
