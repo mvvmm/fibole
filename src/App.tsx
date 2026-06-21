@@ -12,7 +12,11 @@ function hasGameStarted(date: string): boolean {
     const raw = localStorage.getItem(`gameState_${date}`);
     if (!raw) return false;
     const s = JSON.parse(raw) as GameState;
-    return s.phase === "complete" || s.currentRound > 0 || (s.rounds?.[0]?.answerGuesses?.length ?? 0) > 0;
+    return (
+      s.phase === "complete" ||
+      s.currentRound > 0 ||
+      (s.rounds?.[0]?.answerGuesses?.length ?? 0) > 0
+    );
   } catch {
     return false;
   }
@@ -96,7 +100,11 @@ export function App() {
                 }}
               />
               <p
-                style={{ font: "italic 400 16px/1 'Newsreader', serif", color: "#a39a87", margin: 0 }}
+                style={{
+                  font: "italic 400 16px/1 'Newsreader', serif",
+                  color: "#a39a87",
+                  margin: 0,
+                }}
               >
                 Loading today's challenge…
               </p>
@@ -138,7 +146,11 @@ export function App() {
                 No challenge today
               </p>
               <p
-                style={{ font: "italic 400 15px/1 'Newsreader', serif", color: "#a39a87", margin: 0 }}
+                style={{
+                  font: "italic 400 15px/1 'Newsreader', serif",
+                  color: "#a39a87",
+                  margin: 0,
+                }}
               >
                 Check back tomorrow!
               </p>

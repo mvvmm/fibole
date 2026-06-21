@@ -68,6 +68,10 @@ pnpm test:run    # Single pass (good for CI)
 
 Tests live alongside source files as `*.test.ts`. Config: `vitest.config.ts` (separate from `vite.config.ts` — omits the Cloudflare plugin so tests run in a plain Node environment).
 
+## Pull Requests
+
+Always run `pnpm format:write` before creating a PR.
+
 ## Build & Deploy
 
 ```bash
