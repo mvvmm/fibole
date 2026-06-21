@@ -3,6 +3,7 @@ import type { GameState, Round } from "@/types";
 import { maxScore } from "@/lib/scoring";
 import { buildShareText } from "@/lib/share";
 import { BrandSwash, CheckMark, ScoreCircle, XMark } from "./InkMarks";
+import { PostgameRoundDetail } from "./PostgameRoundDetail";
 
 interface ShareCardProps {
   gameState: GameState;
@@ -22,6 +23,7 @@ function formatLongDate(dateStr: string): string {
 
 export function ShareCard({ gameState, rounds, date }: ShareCardProps) {
   const [copied, setCopied] = useState(false);
+  const [selectedRound, setSelectedRound] = useState<number | null>(null);
 
   const total = gameState.totalScore;
   const max = maxScore(rounds.length);
@@ -37,6 +39,17 @@ export function ShareCard({ gameState, rounds, date }: ShareCardProps) {
     await navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  }
+
+  if (selectedRound !== null) {
+    return (
+      <PostgameRoundDetail
+        roundData={rounds[selectedRound]}
+        roundState={gameState.rounds[selectedRound]}
+        roundIndex={selectedRound}
+        onBack={() => setSelectedRound(null)}
+      />
+    );
   }
 
   return (
@@ -104,23 +117,53 @@ export function ShareCard({ gameState, rounds, date }: ShareCardProps) {
         </div>
       </div>
 
+      {/* "tap a round" hint */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 8,
+          marginTop: 26,
+        }}
+      >
+        <span style={{ font: "600 16px/1 'Caveat', cursive", color: "#b09c7c" }}>
+          tap a round to see your marks
+        </span>
+        <svg width="16" height="14" viewBox="0 0 16 14" fill="none">
+          <path
+            d="M2 7H13M9 3L13.5 7L9 11"
+            stroke="#b09c7c"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </div>
+
       {/* Round rows */}
-      <div style={{ marginTop: 40 }}>
+      <div style={{ marginTop: 14 }}>
         {gameState.rounds.map((r, i) => {
           const roundTotal = r.answerScore + r.fibScore;
+          const isLast = i === gameState.rounds.length - 1;
           return (
             <div
               key={i}
+              onClick={() => setSelectedRound(i)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === "Enter" && setSelectedRound(i)}
               style={{
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "space-between",
-                padding: "15px 2px",
+                gap: 12,
+                padding: "14px 8px 14px 2px",
                 borderTop: "1px solid #e2d9c6",
-                borderBottom: i === gameState.rounds.length - 1 ? "1px solid #e2d9c6" : undefined,
+                borderBottom: isLast ? "1px solid #e2d9c6" : undefined,
+                cursor: "pointer",
               }}
             >
-              <div>
+              <div style={{ flex: 1 }}>
                 <div
                   style={{
                     font: "700 10px/1 'Hanken Grotesk', sans-serif",
@@ -142,22 +185,29 @@ export function ShareCard({ gameState, rounds, date }: ShareCardProps) {
                   {rounds[i]?.topic}
                 </div>
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                <span style={{ display: "inline-flex", gap: 6, alignItems: "center" }}>
-                  {r.answerCorrect ? <CheckMark size={17} /> : <XMark size={15} color="#b4532f" />}
-                  {r.fibCorrect ? <CheckMark size={17} /> : <XMark size={15} color="#b4532f" />}
-                </span>
-                <span
-                  style={{
-                    font: "700 18px/1 'Hanken Grotesk', sans-serif",
-                    color: "#20201c",
-                    minWidth: 24,
-                    textAlign: "right",
-                  }}
-                >
-                  {roundTotal}
-                </span>
-              </div>
+              <span style={{ display: "inline-flex", gap: 6, alignItems: "center" }}>
+                {r.answerCorrect ? <CheckMark size={17} /> : <XMark size={15} color="#b4532f" />}
+                {r.fibCorrect ? <CheckMark size={17} /> : <XMark size={15} color="#b4532f" />}
+              </span>
+              <span
+                style={{
+                  font: "700 18px/1 'Hanken Grotesk', sans-serif",
+                  color: "#20201c",
+                  minWidth: 24,
+                  textAlign: "right",
+                }}
+              >
+                {roundTotal}
+              </span>
+              <svg width="9" height="14" viewBox="0 0 9 14" fill="none">
+                <path
+                  d="M1.5 1.5L7 7L1.5 12.5"
+                  stroke="#c2b9a7"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
             </div>
           );
         })}
