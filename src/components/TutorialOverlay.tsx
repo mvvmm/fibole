@@ -326,7 +326,7 @@ export function TutorialOverlay({
 
   const dismiss = () => {
     localStorage.setItem(STORAGE_KEY, "1");
-    onDismiss();
+    setTimeout(onDismiss, 300);
   };
 
   const advance = () => {
