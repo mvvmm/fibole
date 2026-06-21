@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import type { QuestionsData, GameState } from "./types";
 import { Game } from "./components/Game";
 import { HomeScreen } from "./components/HomeScreen";
-import { TutorialOverlay, hasTutorialBeenSeen } from "./components/TutorialOverlay";
+import {
+  TutorialOverlay,
+  hasTutorialBeenSeen,
+} from "./components/TutorialOverlay";
 
 function todayDate(): string {
   return new Date().toLocaleDateString("en-CA");

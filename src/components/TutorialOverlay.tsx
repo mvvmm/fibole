@@ -8,7 +8,7 @@ export function hasTutorialBeenSeen(): boolean {
 
 function useIsDesktop() {
   const [isDesktop, setIsDesktop] = useState(
-    () => window.matchMedia("(min-width: 640px)").matches
+    () => window.matchMedia("(min-width: 640px)").matches,
   );
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 640px)");
@@ -167,8 +167,21 @@ function AnswerCard() {
           <Scribble widthPct={92} pattern="a" />
         </div>
       </div>
-      <div style={{ marginTop: 18, display: "flex", alignItems: "flex-end", gap: 12 }}>
-        <div style={{ flex: 1, borderBottom: "1.5px solid #20201c", paddingBottom: 8 }}>
+      <div
+        style={{
+          marginTop: 18,
+          display: "flex",
+          alignItems: "flex-end",
+          gap: 12,
+        }}
+      >
+        <div
+          style={{
+            flex: 1,
+            borderBottom: "1.5px solid #20201c",
+            paddingBottom: 8,
+          }}
+        >
           <Scribble widthPct={56} pattern="a" color="#c4b7a0" />
         </div>
         <span
@@ -192,7 +205,9 @@ function AnswerCard() {
           marginTop: 16,
         }}
       >
-        <span style={{ font: "600 16px/1 'Caveat', cursive", color: "#a39a87" }}>
+        <span
+          style={{ font: "600 16px/1 'Caveat', cursive", color: "#a39a87" }}
+        >
           three tries
         </span>
         <span style={{ display: "inline-flex", gap: 5 }}>
@@ -335,7 +350,13 @@ export function TutorialOverlay({
   const panelContent = (
     <>
       {/* Eyebrow + dots */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
         <span
           style={{
             font: "700 11px/1 'Hanken Grotesk', sans-serif",
@@ -370,7 +391,7 @@ export function TutorialOverlay({
                   display: "inline-block",
                 }}
               />
-            )
+            ),
           )}
         </div>
       </div>
@@ -393,7 +414,12 @@ export function TutorialOverlay({
           fill="none"
           style={{ position: "absolute", left: 2, bottom: -8 }}
         >
-          <path d={ul.d} stroke="#b4532f" strokeWidth="2.4" strokeLinecap="round" />
+          <path
+            d={ul.d}
+            stroke="#b4532f"
+            strokeWidth="2.4"
+            strokeLinecap="round"
+          />
         </svg>
       </div>
 
