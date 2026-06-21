@@ -481,9 +481,17 @@ export function TutorialOverlay({
   }
 
   return (
-    <Drawer.Root open onOpenChange={(open) => { if (!open) dismiss(); }} shouldScaleBackground={false}>
+    <Drawer.Root
+      open
+      onOpenChange={(open) => {
+        if (!open) dismiss();
+      }}
+      shouldScaleBackground={false}
+    >
       <Drawer.Portal>
-        <Drawer.Overlay style={{ position: "fixed", inset: 0, background: "rgba(28,27,24,0.52)", zIndex: 100 }} />
+        <Drawer.Overlay
+          style={{ position: "fixed", inset: 0, background: "rgba(28,27,24,0.52)", zIndex: 100 }}
+        />
         <Drawer.Content
           style={{
             position: "fixed",
@@ -497,7 +505,15 @@ export function TutorialOverlay({
             padding: "16px 28px 34px",
           }}
         >
-          <Drawer.Handle style={{ width: 42, height: 4, borderRadius: 3, background: "#d8cdb8", margin: "0 auto 22px" }} />
+          <Drawer.Handle
+            style={{
+              width: 42,
+              height: 4,
+              borderRadius: 3,
+              background: "#d8cdb8",
+              margin: "0 auto 22px",
+            }}
+          />
           {panelContent}
         </Drawer.Content>
       </Drawer.Portal>
