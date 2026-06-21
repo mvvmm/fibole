@@ -41,7 +41,14 @@ export function HomeScreen({ date, onPlay }: HomeScreenProps) {
       }}
     >
       {/* Dateline */}
-      <div style={{ marginTop: 64, display: "flex", alignItems: "center", gap: 14 }}>
+      <div
+        style={{
+          marginTop: "clamp(28px, 7.5svh, 64px)",
+          display: "flex",
+          alignItems: "center",
+          gap: 14,
+        }}
+      >
         <span style={{ height: 1, flex: 1, background: "#ddd2bd", display: "block" }} />
         <span
           style={{
