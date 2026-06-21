@@ -64,6 +64,7 @@ describe("buildShareText", () => {
       [
         "Fibole No. 1",
         "Score 7/12",
+        "",
         "🟩🟩🟩  ✅",
         "🟩🟩🟥  ❌",
         "🟥🟥🟥  ✅",
