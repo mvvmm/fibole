@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { formatDisplayDate, formatShareDate, scoreToEmoji, buildShareText } from "./share";
+import { formatDisplayDate, editionNumber, buildShareText } from "./share";
 import type { GameState } from "@/types";
 
 // ─── formatDisplayDate ────────────────────────────────────────────────────────
@@ -16,28 +16,18 @@ describe("formatDisplayDate", () => {
   });
 });
 
-// ─── formatShareDate ──────────────────────────────────────────────────────────
+// ─── editionNumber ────────────────────────────────────────────────────────────
 
-describe("formatShareDate", () => {
-  it("formats as M/D/YY with no padding", () => {
-    expect(formatShareDate("2026-07-19")).toBe("7/19/26");
+describe("editionNumber", () => {
+  it("launch date is No. 1", () => {
+    expect(editionNumber("2026-06-19")).toBe(1);
   });
-  it("strips leading zeros from month and day", () => {
-    expect(formatShareDate("2026-01-05")).toBe("1/5/26");
+  it("day after launch is No. 2", () => {
+    expect(editionNumber("2026-06-20")).toBe(2);
   });
-  it("uses two-digit year", () => {
-    expect(formatShareDate("2030-06-20")).toBe("6/20/30");
+  it("handles month boundaries correctly", () => {
+    expect(editionNumber("2026-07-01")).toBe(13);
   });
-});
-
-// ─── scoreToEmoji ─────────────────────────────────────────────────────────────
-
-describe("scoreToEmoji", () => {
-  it("maps 0 → 0️⃣", () => expect(scoreToEmoji(0)).toBe("0️⃣"));
-  it("maps 1 → 1️⃣", () => expect(scoreToEmoji(1)).toBe("1️⃣"));
-  it("maps 2 → 2️⃣", () => expect(scoreToEmoji(2)).toBe("2️⃣"));
-  it("maps 3 → 3️⃣", () => expect(scoreToEmoji(3)).toBe("3️⃣"));
-  it("falls back to 0️⃣ for out-of-range values", () => expect(scoreToEmoji(99)).toBe("0️⃣"));
 });
 
 // ─── buildShareText ───────────────────────────────────────────────────────────
@@ -65,19 +55,18 @@ function makeGameState(rounds: { answerScore: number; fibScore: number }[]): Gam
 describe("buildShareText", () => {
   it("produces the expected format for a typical game", () => {
     const state = makeGameState([
-      { answerScore: 0, fibScore: 0 },
-      { answerScore: 2, fibScore: 1 },
       { answerScore: 3, fibScore: 1 },
+      { answerScore: 2, fibScore: 0 },
+      { answerScore: 0, fibScore: 1 },
     ]);
-    const text = buildShareText(state, [{}, {}, {}] as never, "2026-07-19");
+    const text = buildShareText(state, [{}, {}, {}] as never, "2026-06-19");
     expect(text).toBe(
       [
-        "Fibole • 7/19/26",
-        "Score: 7/12",
-        "",
-        "0️⃣/0️⃣",
-        "2️⃣/1️⃣",
-        "3️⃣/1️⃣",
+        "Fibole No. 1",
+        "Score 7/12",
+        "🟩🟩🟩  ✅",
+        "🟩🟩🟥  ❌",
+        "🟥🟥🟥  ✅",
         "",
         "https://fibole.com",
       ].join("\n"),
@@ -97,8 +86,8 @@ describe("buildShareText", () => {
       { answerScore: 3, fibScore: 1 },
     ]);
     const text = buildShareText(state, [{}, {}, {}] as never, "2026-06-20");
-    expect(text).toContain("Score: 12/12");
-    expect(text).toContain("3️⃣/1️⃣\n3️⃣/1️⃣\n3️⃣/1️⃣");
+    expect(text).toContain("Score 12/12");
+    expect(text).toContain("🟩🟩🟩  ✅\n🟩🟩🟩  ✅\n🟩🟩🟩  ✅");
   });
 
   it("shows a zero score correctly", () => {
@@ -108,7 +97,13 @@ describe("buildShareText", () => {
       { answerScore: 0, fibScore: 0 },
     ]);
     const text = buildShareText(state, [{}, {}, {}] as never, "2026-06-20");
-    expect(text).toContain("Score: 0/12");
-    expect(text).toContain("0️⃣/0️⃣\n0️⃣/0️⃣\n0️⃣/0️⃣");
+    expect(text).toContain("Score 0/12");
+    expect(text).toContain("🟥🟥🟥  ❌\n🟥🟥🟥  ❌\n🟥🟥🟥  ❌");
+  });
+
+  it("uses the edition number, not the date", () => {
+    const state = makeGameState([{ answerScore: 3, fibScore: 1 }]);
+    const text = buildShareText(state, [{}] as never, "2026-06-21");
+    expect(text.split("\n")[0]).toBe("Fibole No. 3");
   });
 });
