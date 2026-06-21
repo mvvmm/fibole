@@ -314,7 +314,6 @@ export function TutorialOverlay({
   onComplete: () => void;
 }) {
   const [step, setStep] = useState(0);
-  const [drawerOpen, setDrawerOpen] = useState(true);
   const isDesktop = useIsDesktop();
 
   useEffect(() => {
@@ -482,12 +481,7 @@ export function TutorialOverlay({
   }
 
   return (
-    <Drawer.Root
-      open={drawerOpen}
-      onOpenChange={setDrawerOpen}
-      onClose={dismiss}
-      shouldScaleBackground={false}
-    >
+    <Drawer.Root defaultOpen onClose={dismiss} shouldScaleBackground={false}>
       <Drawer.Portal>
         <Drawer.Overlay
           style={{ position: "fixed", inset: 0, background: "rgba(28,27,24,0.52)", zIndex: 100 }}
