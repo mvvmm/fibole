@@ -30,15 +30,27 @@ export function ShareCard({ gameState, rounds, date }: ShareCardProps) {
 
   async function handleShare() {
     const text = buildShareText(gameState, rounds, date);
-    if (navigator.share) {
+    let didCopy = false;
+    try {
+      await navigator.clipboard.writeText(text);
+      didCopy = true;
+    } catch {
       try {
-        await navigator.share({ text });
-        return;
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        didCopy = document.execCommand("copy");
+        document.body.removeChild(ta);
       } catch {}
     }
-    await navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    if (didCopy) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   }
 
   if (selectedRound !== null) {
