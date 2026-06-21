@@ -29,44 +29,44 @@ html, body { width: 1200px; height: 630px; overflow: hidden; }
 <body>
 <div style="width:1200px;height:630px;background:#f6f1e7;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;">
   <!-- top-left corner flourish -->
-  <svg width="150" height="120" viewBox="0 0 150 120" fill="none" style="position:absolute;left:70px;top:58px;">
-    <path d="M14 100C12 64 26 30 70 16" stroke="#d8b8a6" stroke-width="3" stroke-linecap="round"/>
-    <path d="M52 12C60 16 68 17 78 16M68 30C70 24 70 18 70 14" stroke="#d8b8a6" stroke-width="3" stroke-linecap="round"/>
+  <svg width="195" height="156" viewBox="0 0 150 120" fill="none" style="position:absolute;left:91px;top:75px;">
+    <path d="M14 100C12 64 26 30 70 16" stroke="#d8b8a6" stroke-width="3.9" stroke-linecap="round"/>
+    <path d="M52 12C60 16 68 17 78 16M68 30C70 24 70 18 70 14" stroke="#d8b8a6" stroke-width="3.9" stroke-linecap="round"/>
   </svg>
   <!-- top-right asterisk spark -->
-  <svg width="58" height="58" viewBox="0 0 58 58" fill="none" style="position:absolute;right:150px;top:84px;transform:rotate(8deg);">
-    <path d="M29 8V50M8 29H50" stroke="#b4532f" stroke-width="4" stroke-linecap="round"/>
-    <path d="M14 14L44 44M44 14L14 44" stroke="#b4532f" stroke-width="3" stroke-linecap="round" opacity="0.75"/>
+  <svg width="75" height="75" viewBox="0 0 58 58" fill="none" style="position:absolute;right:195px;top:109px;transform:rotate(8deg);">
+    <path d="M29 8V50M8 29H50" stroke="#b4532f" stroke-width="5" stroke-linecap="round"/>
+    <path d="M14 14L44 44M44 14L14 44" stroke="#b4532f" stroke-width="3.9" stroke-linecap="round" opacity="0.75"/>
   </svg>
   <!-- right side little circle -->
-  <svg width="40" height="40" viewBox="0 0 40 40" fill="none" style="position:absolute;right:96px;top:290px;">
-    <path d="M20 5C10 4 4 11 5 21C6 30 14 36 24 34C32 32 36 23 31 14C28 9 23 6 17 6" stroke="#cdbfa3" stroke-width="3" stroke-linecap="round"/>
+  <svg width="52" height="52" viewBox="0 0 40 40" fill="none" style="position:absolute;right:125px;top:377px;">
+    <path d="M20 5C10 4 4 11 5 21C6 30 14 36 24 34C32 32 36 23 31 14C28 9 23 6 17 6" stroke="#cdbfa3" stroke-width="3.9" stroke-linecap="round"/>
   </svg>
   <!-- bottom-left squiggle -->
-  <svg width="120" height="26" viewBox="0 0 120 26" fill="none" style="position:absolute;left:110px;bottom:96px;">
-    <path d="M5 14C20 5 32 22 47 13C62 4 74 21 89 12C100 6 108 10 115 14" stroke="#d8b8a6" stroke-width="3.4" stroke-linecap="round"/>
+  <svg width="156" height="34" viewBox="0 0 120 26" fill="none" style="position:absolute;left:143px;bottom:125px;">
+    <path d="M5 14C20 5 32 22 47 13C62 4 74 21 89 12C100 6 108 10 115 14" stroke="#d8b8a6" stroke-width="4.4" stroke-linecap="round"/>
   </svg>
   <!-- bottom-right arrow doodle -->
-  <svg width="86" height="74" viewBox="0 0 86 74" fill="none" style="position:absolute;right:124px;bottom:70px;transform:rotate(-6deg);">
-    <path d="M76 8C70 36 50 58 18 64M40 56C30 60 24 62 16 64M28 46C22 53 19 59 16 64" stroke="#cdbfa3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <svg width="112" height="96" viewBox="0 0 86 74" fill="none" style="position:absolute;right:161px;bottom:91px;transform:rotate(-6deg);">
+    <path d="M76 8C70 36 50 58 18 64M40 56C30 60 24 62 16 64M28 46C22 53 19 59 16 64" stroke="#cdbfa3" stroke-width="3.9" stroke-linecap="round" stroke-linejoin="round"/>
   </svg>
   <!-- bottom-left small star -->
-  <svg width="34" height="34" viewBox="0 0 34 34" fill="none" style="position:absolute;left:250px;bottom:150px;transform:rotate(-10deg);">
-    <path d="M17 4V30M4 17H30" stroke="#cdbfa3" stroke-width="2.8" stroke-linecap="round"/>
-    <path d="M8 8L26 26M26 8L8 26" stroke="#cdbfa3" stroke-width="2.2" stroke-linecap="round"/>
+  <svg width="44" height="44" viewBox="0 0 34 34" fill="none" style="position:absolute;left:88px;bottom:220px;transform:rotate(-10deg);">
+    <path d="M17 4V30M4 17H30" stroke="#cdbfa3" stroke-width="3.6" stroke-linecap="round"/>
+    <path d="M8 8L26 26M26 8L8 26" stroke="#cdbfa3" stroke-width="2.9" stroke-linecap="round"/>
   </svg>
 
   <!-- centered brand block -->
   <div style="position:relative;z-index:1;text-align:center;display:flex;flex-direction:column;align-items:center;">
     <div style="position:relative;display:inline-block;">
-      <div style="font:400 148px/0.92 'Libre Caslon Display',serif;color:#20201c;">Fibole</div>
-      <svg width="470" height="40" viewBox="0 0 420 36" fill="none" style="position:absolute;left:50%;transform:translateX(-50%);bottom:-24px;">
-        <path d="M12 24C92 9 162 30 238 19C298 10 356 18 408 26" stroke="#b4532f" stroke-width="6" stroke-linecap="round"/>
-        <path d="M30 32C92 22 156 33 232 27" stroke="#b4532f" stroke-width="4" stroke-linecap="round" opacity="0.5"/>
+      <div style="font:400 192px/0.92 'Libre Caslon Display',serif;color:#20201c;">Fibole</div>
+      <svg width="611" height="52" viewBox="0 0 420 36" fill="none" style="position:absolute;left:50%;transform:translateX(-50%);bottom:-31px;">
+        <path d="M12 24C92 9 162 30 238 19C298 10 356 18 408 26" stroke="#b4532f" stroke-width="8" stroke-linecap="round"/>
+        <path d="M30 32C92 22 156 33 232 27" stroke="#b4532f" stroke-width="5" stroke-linecap="round" opacity="0.5"/>
       </svg>
     </div>
-    <div style="font:400 43px/1.35 'Libre Caslon Display',serif;color:#4a463d;margin-top:74px;">Four facts. Three are true.<br>Can you spot the fib?</div>
-    <div style="font:700 17px/1 'Hanken Grotesk',sans-serif;letter-spacing:0.18em;text-transform:uppercase;color:#b4532f;margin-top:46px;">A new puzzle every day</div>
+    <div style="font:400 56px/1.35 'Libre Caslon Display',serif;color:#4a463d;margin-top:96px;">Four facts. Three are true.<br>Can you spot the fib?</div>
+    <div style="font:700 22px/1 'Hanken Grotesk',sans-serif;letter-spacing:0.18em;text-transform:uppercase;color:#b4532f;margin-top:60px;">A new puzzle every day</div>
   </div>
 </div>
 </body>
