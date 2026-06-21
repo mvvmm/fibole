@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 
 // Edition 1 launch date — adjust if the actual launch date differs
-const LAUNCH_DATE = "2026-06-29";
+const LAUNCH_DATE = "2026-06-19";
 
 interface HomeScreenProps {
   date: string;
