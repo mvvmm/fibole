@@ -27,6 +27,7 @@ export function buildShareText(gameState: GameState, rounds: Round[], date: stri
   const lines = [
     `Fibole No. ${editionNumber(date)}`,
     `Score ${gameState.totalScore}/${maxScore(rounds.length)}`,
+    "",
     ...gameState.rounds.map((r) => roundRow(r.answerScore, r.fibCorrect)),
     "",
     "https://fibole.com",
