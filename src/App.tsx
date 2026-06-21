@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { QuestionsData, GameState } from "./types";
 import { Game } from "./components/Game";
 import { HomeScreen } from "./components/HomeScreen";
+import { TutorialOverlay, hasTutorialBeenSeen } from "./components/TutorialOverlay";
 
 function todayDate(): string {
   return new Date().toLocaleDateString("en-CA");
@@ -41,6 +42,8 @@ export function App() {
   const [data, setData] = useState<QuestionsData | null>(null);
   const [error, setError] = useState<string>("");
   const [gameStarted, setGameStarted] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
+  const [tutorialFromPlay, setTutorialFromPlay] = useState(false);
   const date = todayDate();
 
   useEffect(() => {
@@ -76,7 +79,35 @@ export function App() {
   return (
     <div style={shell}>
       {status === "loaded" && data && !gameStarted ? (
-        <HomeScreen date={data.date} onPlay={() => setGameStarted(true)} />
+        <>
+          <HomeScreen
+            date={data.date}
+            onPlay={() => {
+              if (!hasTutorialBeenSeen()) {
+                setTutorialFromPlay(true);
+                setShowTutorial(true);
+              } else {
+                setGameStarted(true);
+              }
+            }}
+            onHowToPlay={() => {
+              setTutorialFromPlay(false);
+              setShowTutorial(true);
+            }}
+          />
+          {showTutorial && (
+            <TutorialOverlay
+              onDismiss={() => {
+                setShowTutorial(false);
+                if (tutorialFromPlay) setGameStarted(true);
+              }}
+              onComplete={() => {
+                setShowTutorial(false);
+                setGameStarted(true);
+              }}
+            />
+          )}
+        </>
       ) : (
         <div style={inner}>
           {status === "loading" && (

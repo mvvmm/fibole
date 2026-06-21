@@ -6,6 +6,7 @@ const LAUNCH_DATE = "2026-06-19";
 interface HomeScreenProps {
   date: string;
   onPlay: () => void;
+  onHowToPlay: () => void;
 }
 
 function computeGameNumber(dateStr: string): number {
@@ -23,7 +24,7 @@ function formatDateText(dateStr: string): string {
   });
 }
 
-export function HomeScreen({ date, onPlay }: HomeScreenProps) {
+export function HomeScreen({ date, onPlay, onHowToPlay }: HomeScreenProps) {
   const gameNumber = useMemo(() => computeGameNumber(date), [date]);
   const dateText = useMemo(() => formatDateText(date), [date]);
 
@@ -49,7 +50,14 @@ export function HomeScreen({ date, onPlay }: HomeScreenProps) {
           gap: 14,
         }}
       >
-        <span style={{ height: 1, flex: 1, background: "#ddd2bd", display: "block" }} />
+        <span
+          style={{
+            height: 1,
+            flex: 1,
+            background: "#ddd2bd",
+            display: "block",
+          }}
+        />
         <span
           style={{
             font: "800 12px/1 'Hanken Grotesk', sans-serif",
@@ -79,11 +87,25 @@ export function HomeScreen({ date, onPlay }: HomeScreenProps) {
         >
           {dateText}
         </span>
-        <span style={{ height: 1, flex: 1, background: "#ddd2bd", display: "block" }} />
+        <span
+          style={{
+            height: 1,
+            flex: 1,
+            background: "#ddd2bd",
+            display: "block",
+          }}
+        />
       </div>
 
       {/* Hero — flex:1 centers the fixed-height unit; the unit itself never reflows */}
-      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
         {/* Fixed-size unit: text + doodles are one static element */}
         <div style={{ position: "relative", width: "100%", height: 460 }}>
           {/* Ink doodles — all at fixed pixel offsets within the 460px unit */}
@@ -114,7 +136,12 @@ export function HomeScreen({ date, onPlay }: HomeScreenProps) {
             height="30"
             viewBox="0 0 40 40"
             fill="none"
-            style={{ position: "absolute", right: 62, top: 62, pointerEvents: "none" }}
+            style={{
+              position: "absolute",
+              right: 62,
+              top: 62,
+              pointerEvents: "none",
+            }}
           >
             <path
               d="M20 5C10 4 4 11 5 21C6 30 14 36 24 34C32 32 36 23 31 14C28 9 23 6 17 6"
@@ -191,7 +218,12 @@ export function HomeScreen({ date, onPlay }: HomeScreenProps) {
             height="28"
             viewBox="0 0 40 40"
             fill="none"
-            style={{ position: "absolute", left: 4, top: 334, pointerEvents: "none" }}
+            style={{
+              position: "absolute",
+              left: 4,
+              top: 334,
+              pointerEvents: "none",
+            }}
           >
             <path
               d="M20 5C10 4 4 11 5 21C6 30 14 36 24 34C32 32 36 23 31 14C28 9 23 6 17 6"
@@ -205,7 +237,12 @@ export function HomeScreen({ date, onPlay }: HomeScreenProps) {
             height="40"
             viewBox="0 0 36 44"
             fill="none"
-            style={{ position: "absolute", right: 6, top: 322, pointerEvents: "none" }}
+            style={{
+              position: "absolute",
+              right: 6,
+              top: 322,
+              pointerEvents: "none",
+            }}
           >
             <path
               d="M8 6C24 10 30 24 22 34C17 40 9 38 8 31C7 25 13 22 17 26"
@@ -248,7 +285,10 @@ export function HomeScreen({ date, onPlay }: HomeScreenProps) {
           >
             <div style={{ position: "relative", display: "inline-block" }}>
               <div
-                style={{ font: "400 78px/0.92 'Libre Caslon Display', serif", color: "#20201c" }}
+                style={{
+                  font: "400 78px/0.92 'Libre Caslon Display', serif",
+                  color: "#20201c",
+                }}
               >
                 Fibole
               </div>
@@ -312,33 +352,21 @@ export function HomeScreen({ date, onPlay }: HomeScreenProps) {
         >
           Play today's puzzle
         </button>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 8,
-            marginTop: 16,
-          }}
-        >
-          <span
+        <div style={{ textAlign: "center", marginTop: 10 }}>
+          <button
+            onClick={onHowToPlay}
             style={{
-              font: "600 16px/1 'Caveat', cursive",
-              color: "#a39a87",
-              whiteSpace: "nowrap",
+              background: "none",
+              border: "none",
+              padding: 0,
+              font: "400 13px/1 'Hanken Grotesk', sans-serif",
+              color: "#b4532f",
+              cursor: "pointer",
+              letterSpacing: "0.02em",
             }}
           >
-            a new puzzle every day
-          </span>
-          <svg width="30" height="16" viewBox="0 0 36 20" fill="none">
-            <path
-              d="M3 6C14 14 24 14 33 8M33 8C29 9 26 9 23 8M33 8C32 11 31 14 30 16"
-              stroke="#a39a87"
-              strokeWidth="1.7"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+            How to play →
+          </button>
         </div>
       </div>
     </div>
