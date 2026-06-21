@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import type { QuestionsData } from "@/types";
 import { useGameState } from "@/hooks/useGameState";
 import { Round } from "./Round";
@@ -9,6 +10,14 @@ interface GameProps {
 
 export function Game({ data }: GameProps) {
   const { state, submitAnswer, submitFib, advanceRound } = useGameState(data.date);
+
+  const prevPhaseRef = useRef(state.phase);
+  useEffect(() => {
+    if (prevPhaseRef.current === "answer" && state.phase === "fib") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    prevPhaseRef.current = state.phase;
+  }, [state.phase]);
 
   if (state.phase === "complete") {
     return <ShareCard gameState={state} rounds={data.rounds} date={data.date} />;
