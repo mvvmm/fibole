@@ -216,7 +216,7 @@ export function HomeScreen({ date, onPlay }: HomeScreenProps) {
               position: "absolute",
               left: "50%",
               transform: "translateX(-50%)",
-              top: 418,
+              top: 398,
               pointerEvents: "none",
             }}
           >
