@@ -12,10 +12,7 @@ interface HomeScreenProps {
 function computeGameNumber(dateStr: string): number {
   const epoch = new Date(LAUNCH_DATE + "T12:00:00");
   const d = new Date(dateStr + "T12:00:00");
-  return Math.max(
-    1,
-    Math.round((d.getTime() - epoch.getTime()) / 86400000) + 1,
-  );
+  return Math.max(1, Math.round((d.getTime() - epoch.getTime()) / 86400000) + 1);
 }
 
 function formatDateText(dateStr: string): string {
@@ -125,12 +122,7 @@ export function HomeScreen({ date, onPlay, onHowToPlay }: HomeScreenProps) {
               pointerEvents: "none",
             }}
           >
-            <path
-              d="M17 3V31M3 17H31"
-              stroke="#d8b8a6"
-              strokeWidth="2.8"
-              strokeLinecap="round"
-            />
+            <path d="M17 3V31M3 17H31" stroke="#d8b8a6" strokeWidth="2.8" strokeLinecap="round" />
             <path
               d="M7 7L27 27M27 7L7 27"
               stroke="#d8b8a6"
@@ -191,12 +183,7 @@ export function HomeScreen({ date, onPlay, onHowToPlay }: HomeScreenProps) {
               pointerEvents: "none",
             }}
           >
-            <path
-              d="M29 8V50M8 29H50"
-              stroke="#b4532f"
-              strokeWidth="4"
-              strokeLinecap="round"
-            />
+            <path d="M29 8V50M8 29H50" stroke="#b4532f" strokeWidth="4" strokeLinecap="round" />
             <path
               d="M14 14L44 44M44 14L14 44"
               stroke="#b4532f"
@@ -218,12 +205,7 @@ export function HomeScreen({ date, onPlay, onHowToPlay }: HomeScreenProps) {
               pointerEvents: "none",
             }}
           >
-            <path
-              d="M17 4V30M4 17H30"
-              stroke="#cdbfa3"
-              strokeWidth="2.8"
-              strokeLinecap="round"
-            />
+            <path d="M17 4V30M4 17H30" stroke="#cdbfa3" strokeWidth="2.8" strokeLinecap="round" />
             <path
               d="M8 8L26 26M26 8L8 26"
               stroke="#cdbfa3"

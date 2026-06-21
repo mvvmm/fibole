@@ -7,9 +7,7 @@ export function hasTutorialBeenSeen(): boolean {
 }
 
 function useIsDesktop() {
-  const [isDesktop, setIsDesktop] = useState(
-    () => window.matchMedia("(min-width: 640px)").matches,
-  );
+  const [isDesktop, setIsDesktop] = useState(() => window.matchMedia("(min-width: 640px)").matches);
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 640px)");
     const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
@@ -205,11 +203,7 @@ function AnswerCard() {
           marginTop: 16,
         }}
       >
-        <span
-          style={{ font: "600 16px/1 'Caveat', cursive", color: "#a39a87" }}
-        >
-          three tries
-        </span>
+        <span style={{ font: "600 16px/1 'Caveat', cursive", color: "#a39a87" }}>three tries</span>
         <span style={{ display: "inline-flex", gap: 5 }}>
           {[0, 1, 2].map((i) => (
             <svg key={i} width="17" height="17" viewBox="0 0 20 20" fill="none">
@@ -414,12 +408,7 @@ export function TutorialOverlay({
           fill="none"
           style={{ position: "absolute", left: 2, bottom: -8 }}
         >
-          <path
-            d={ul.d}
-            stroke="#b4532f"
-            strokeWidth="2.4"
-            strokeLinecap="round"
-          />
+          <path d={ul.d} stroke="#b4532f" strokeWidth="2.4" strokeLinecap="round" />
         </svg>
       </div>
 
