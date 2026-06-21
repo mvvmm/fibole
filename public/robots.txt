@@ -1,5 +1,5 @@
 User-agent: *
 Allow: /
-Content-signal: search=yes, ai-input=no, ai-train=no
+Content-signal: search=yes, ai-input=yes, ai-train=yes
 
 Sitemap: https://fibole.com/sitemap.xml
