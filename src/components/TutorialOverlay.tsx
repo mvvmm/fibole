@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Drawer } from "vaul";
 
 const STORAGE_KEY = "tutorialSeen";
 
@@ -480,42 +481,26 @@ export function TutorialOverlay({
   }
 
   return (
-    <div
-      onClick={dismiss}
-      style={{
-        position: "fixed",
-        inset: 0,
-        background: "rgba(28,27,24,0.52)",
-        zIndex: 100,
-        animation: "tut-backdrop 0.25s ease",
-      }}
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          position: "absolute",
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: "#f7f2e8",
-          borderRadius: "30px 30px 0 0",
-          boxShadow: "0 -12px 44px rgba(28,27,24,0.30)",
-          padding: "16px 28px 34px",
-          animation: "tut-slide-up 0.3s ease",
-        }}
-      >
-        {/* Handle */}
-        <div
+    <Drawer.Root open onOpenChange={(open) => { if (!open) dismiss(); }} shouldScaleBackground={false}>
+      <Drawer.Portal>
+        <Drawer.Overlay style={{ position: "fixed", inset: 0, background: "rgba(28,27,24,0.52)", zIndex: 100 }} />
+        <Drawer.Content
           style={{
-            width: 42,
-            height: 4,
-            borderRadius: 3,
-            background: "#d8cdb8",
-            margin: "0 auto 22px",
+            position: "fixed",
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 100,
+            background: "#f7f2e8",
+            borderRadius: "30px 30px 0 0",
+            boxShadow: "0 -12px 44px rgba(28,27,24,0.30)",
+            padding: "16px 28px 34px",
           }}
-        />
-        {panelContent}
-      </div>
-    </div>
+        >
+          <Drawer.Handle style={{ width: 42, height: 4, borderRadius: 3, background: "#d8cdb8", margin: "0 auto 22px" }} />
+          {panelContent}
+        </Drawer.Content>
+      </Drawer.Portal>
+    </Drawer.Root>
   );
 }
