@@ -409,7 +409,7 @@ export function PostgameRoundDetail({ roundData, roundState, roundIndex, onBack 
               marginTop: 5,
             }}
           >
-            Answer {answerScore}&nbsp;·&nbsp;Fake {fibScore}
+            Answer {answerScore}&nbsp;·&nbsp;Fib {fibScore}
           </div>
         </div>
         <div style={{ position: "relative" }}>
