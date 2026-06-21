@@ -1,9 +1,21 @@
 import { useEffect, useState } from "react";
-import type { QuestionsData } from "./types";
+import type { QuestionsData, GameState } from "./types";
 import { Game } from "./components/Game";
+import { HomeScreen } from "./components/HomeScreen";
 
 function todayDate(): string {
   return new Date().toLocaleDateString("en-CA");
+}
+
+function hasGameStarted(date: string): boolean {
+  try {
+    const raw = localStorage.getItem(`gameState_${date}`);
+    if (!raw) return false;
+    const s = JSON.parse(raw) as GameState;
+    return s.phase === "complete" || s.currentRound > 0 || (s.rounds?.[0]?.answerGuesses?.length ?? 0) > 0;
+  } catch {
+    return false;
+  }
 }
 
 type Status = "loading" | "loaded" | "error" | "no-questions";
@@ -24,6 +36,7 @@ export function App() {
   const [status, setStatus] = useState<Status>("loading");
   const [data, setData] = useState<QuestionsData | null>(null);
   const [error, setError] = useState<string>("");
+  const [gameStarted, setGameStarted] = useState(false);
   const date = todayDate();
 
   useEffect(() => {
@@ -44,6 +57,7 @@ export function App() {
       .then((d) => {
         setData(d);
         setStatus("loaded");
+        if (hasGameStarted(d.date)) setGameStarted(true);
       })
       .catch((e: Error) => {
         if (e.message === "no-questions") {
@@ -57,79 +71,83 @@ export function App() {
 
   return (
     <div style={shell}>
-      <div style={inner}>
-        {status === "loading" && (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 12,
-              paddingTop: 80,
-            }}
-          >
+      {status === "loaded" && data && !gameStarted ? (
+        <HomeScreen date={data.date} onPlay={() => setGameStarted(true)} />
+      ) : (
+        <div style={inner}>
+          {status === "loading" && (
             <div
               style={{
-                width: 28,
-                height: 28,
-                border: "2px solid #e2d9c6",
-                borderTopColor: "#b4532f",
-                borderRadius: "50%",
-                animation: "spin 0.8s linear infinite",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 12,
+                paddingTop: 80,
               }}
-            />
-            <p
-              style={{ font: "italic 400 16px/1 'Newsreader', serif", color: "#a39a87", margin: 0 }}
             >
-              Loading today's challenge…
-            </p>
-          </div>
-        )}
+              <div
+                style={{
+                  width: 28,
+                  height: 28,
+                  border: "2px solid #e2d9c6",
+                  borderTopColor: "#b4532f",
+                  borderRadius: "50%",
+                  animation: "spin 0.8s linear infinite",
+                }}
+              />
+              <p
+                style={{ font: "italic 400 16px/1 'Newsreader', serif", color: "#a39a87", margin: 0 }}
+              >
+                Loading today's challenge…
+              </p>
+            </div>
+          )}
 
-        {status === "error" && (
-          <div style={{ textAlign: "center", paddingTop: 80 }}>
-            <p
-              style={{
-                font: "400 28px/1.1 'Libre Caslon Display', serif",
-                color: "#20201c",
-                margin: "0 0 8px",
-              }}
-            >
-              Something went wrong
-            </p>
-            <p
-              style={{
-                font: "400 14px/1.4 'Hanken Grotesk', sans-serif",
-                color: "#a39a87",
-                margin: 0,
-              }}
-            >
-              {error}
-            </p>
-          </div>
-        )}
+          {status === "error" && (
+            <div style={{ textAlign: "center", paddingTop: 80 }}>
+              <p
+                style={{
+                  font: "400 28px/1.1 'Libre Caslon Display', serif",
+                  color: "#20201c",
+                  margin: "0 0 8px",
+                }}
+              >
+                Something went wrong
+              </p>
+              <p
+                style={{
+                  font: "400 14px/1.4 'Hanken Grotesk', sans-serif",
+                  color: "#a39a87",
+                  margin: 0,
+                }}
+              >
+                {error}
+              </p>
+            </div>
+          )}
 
-        {status === "no-questions" && (
-          <div style={{ textAlign: "center", paddingTop: 80 }}>
-            <p
-              style={{
-                font: "400 28px/1.1 'Libre Caslon Display', serif",
-                color: "#20201c",
-                margin: "0 0 8px",
-              }}
-            >
-              No challenge today
-            </p>
-            <p
-              style={{ font: "italic 400 15px/1 'Newsreader', serif", color: "#a39a87", margin: 0 }}
-            >
-              Check back tomorrow!
-            </p>
-          </div>
-        )}
+          {status === "no-questions" && (
+            <div style={{ textAlign: "center", paddingTop: 80 }}>
+              <p
+                style={{
+                  font: "400 28px/1.1 'Libre Caslon Display', serif",
+                  color: "#20201c",
+                  margin: "0 0 8px",
+                }}
+              >
+                No challenge today
+              </p>
+              <p
+                style={{ font: "italic 400 15px/1 'Newsreader', serif", color: "#a39a87", margin: 0 }}
+              >
+                Check back tomorrow!
+              </p>
+            </div>
+          )}
 
-        {status === "loaded" && data && <Game data={data} />}
-      </div>
+          {status === "loaded" && data && gameStarted && <Game data={data} />}
+        </div>
+      )}
 
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
