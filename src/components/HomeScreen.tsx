@@ -6,6 +6,7 @@ const LAUNCH_DATE = "2026-06-19";
 interface HomeScreenProps {
   date: string;
   onPlay: () => void;
+  onHowToPlay: () => void;
 }
 
 function computeGameNumber(dateStr: string): number {
@@ -23,7 +24,7 @@ function formatDateText(dateStr: string): string {
   });
 }
 
-export function HomeScreen({ date, onPlay }: HomeScreenProps) {
+export function HomeScreen({ date, onPlay, onHowToPlay }: HomeScreenProps) {
   const gameNumber = useMemo(() => computeGameNumber(date), [date]);
   const dateText = useMemo(() => formatDateText(date), [date]);
 
@@ -312,33 +313,21 @@ export function HomeScreen({ date, onPlay }: HomeScreenProps) {
         >
           Play today's puzzle
         </button>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 8,
-            marginTop: 16,
-          }}
-        >
-          <span
+        <div style={{ textAlign: "center", marginTop: 10 }}>
+          <button
+            onClick={onHowToPlay}
             style={{
-              font: "600 16px/1 'Caveat', cursive",
-              color: "#a39a87",
-              whiteSpace: "nowrap",
+              background: "none",
+              border: "none",
+              padding: 0,
+              font: "400 13px/1 'Hanken Grotesk', sans-serif",
+              color: "#b4532f",
+              cursor: "pointer",
+              letterSpacing: "0.02em",
             }}
           >
-            a new puzzle every day
-          </span>
-          <svg width="30" height="16" viewBox="0 0 36 20" fill="none">
-            <path
-              d="M3 6C14 14 24 14 33 8M33 8C29 9 26 9 23 8M33 8C32 11 31 14 30 16"
-              stroke="#a39a87"
-              strokeWidth="1.7"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+            How to play →
+          </button>
         </div>
       </div>
     </div>
