@@ -3,7 +3,6 @@ import type { Round as RoundData, RoundState } from "@/types";
 import { FactList } from "./FactList";
 import { AnswerInput } from "./AnswerInput";
 import {
-  BrandSwash,
   CheckMark,
   LongUnderline,
   MediumUnderline,
@@ -87,19 +86,7 @@ export function Round({
   if (isAnswerPhase) {
     return (
       <div>
-        <div style={{ textAlign: "center" }}>
-          <div
-            style={{
-              font: "400 30px/1 'Libre Caslon Display', serif",
-              color: "#20201c",
-            }}
-          >
-            Fibole
-          </div>
-          <BrandSwash style={{ display: "block", margin: "6px auto 0" }} />
-        </div>
-
-        <div style={{ marginTop: 28 }}>{RoundTopicRow}</div>
+        {RoundTopicRow}
 
         <div style={{ position: "relative", marginTop: 24 }}>
           <div
