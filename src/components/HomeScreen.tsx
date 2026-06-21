@@ -88,7 +88,7 @@ export function HomeScreen({ date, onPlay }: HomeScreenProps) {
             style={{
               position: "absolute",
               left: 58,
-              top: 60,
+              top: 36,
               transform: "rotate(-6deg)",
               pointerEvents: "none",
             }}
@@ -107,7 +107,7 @@ export function HomeScreen({ date, onPlay }: HomeScreenProps) {
             height="30"
             viewBox="0 0 40 40"
             fill="none"
-            style={{ position: "absolute", right: 62, top: 86, pointerEvents: "none" }}
+            style={{ position: "absolute", right: 62, top: 62, pointerEvents: "none" }}
           >
             <path
               d="M20 5C10 4 4 11 5 21C6 30 14 36 24 34C32 32 36 23 31 14C28 9 23 6 17 6"
@@ -125,7 +125,7 @@ export function HomeScreen({ date, onPlay }: HomeScreenProps) {
               position: "absolute",
               left: "50%",
               transform: "translateX(-50%)",
-              top: 108,
+              top: 84,
               pointerEvents: "none",
             }}
           >
