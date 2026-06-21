@@ -104,7 +104,11 @@ export function PostgameRoundDetail({ roundData, roundState, roundIndex, onBack 
                 Solved · {tryOrdinal(answerGuesses.length)} try
               </div>
               <div
-                style={{ font: "400 25px/1 'Libre Caslon Display', serif", color: "#20201c", marginTop: 5 }}
+                style={{
+                  font: "400 25px/1 'Libre Caslon Display', serif",
+                  color: "#20201c",
+                  marginTop: 5,
+                }}
               >
                 {roundData.answer}
               </div>
