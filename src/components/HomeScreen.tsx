@@ -40,55 +40,46 @@ export function HomeScreen({ date, onPlay }: HomeScreenProps) {
         fontFamily: "'Hanken Grotesk', sans-serif",
       }}
     >
-      <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-        {/* Dateline */}
-        <div style={{ marginTop: 64, display: "flex", alignItems: "center", gap: 14 }}>
-          <span style={{ height: 1, flex: 1, background: "#ddd2bd", display: "block" }} />
-          <span
-            style={{
-              font: "800 12px/1 'Hanken Grotesk', sans-serif",
-              letterSpacing: "0.16em",
-              textTransform: "uppercase",
-              color: "#b4532f",
-              whiteSpace: "nowrap",
-            }}
-          >
-            No. {gameNumber}
-          </span>
-          <span
-            style={{
-              width: 3,
-              height: 3,
-              borderRadius: "50%",
-              background: "#cdbfa3",
-              display: "inline-block",
-            }}
-          />
-          <span
-            style={{
-              font: "italic 400 14px/1 'Newsreader', serif",
-              color: "#8a8472",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {dateText}
-          </span>
-          <span style={{ height: 1, flex: 1, background: "#ddd2bd", display: "block" }} />
-        </div>
-
-        {/* Hero — position:relative so doodles are anchored to it and move with the centered content */}
-        <div
+      {/* Dateline */}
+      <div style={{ marginTop: 64, display: "flex", alignItems: "center", gap: 14 }}>
+        <span style={{ height: 1, flex: 1, background: "#ddd2bd", display: "block" }} />
+        <span
           style={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            textAlign: "center",
-            position: "relative",
+            font: "800 12px/1 'Hanken Grotesk', sans-serif",
+            letterSpacing: "0.16em",
+            textTransform: "uppercase",
+            color: "#b4532f",
+            whiteSpace: "nowrap",
           }}
         >
-          {/* Ink doodles — top values are % of hero height so they scale with the viewport */}
+          No. {gameNumber}
+        </span>
+        <span
+          style={{
+            width: 3,
+            height: 3,
+            borderRadius: "50%",
+            background: "#cdbfa3",
+            display: "inline-block",
+          }}
+        />
+        <span
+          style={{
+            font: "italic 400 14px/1 'Newsreader', serif",
+            color: "#8a8472",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {dateText}
+        </span>
+        <span style={{ height: 1, flex: 1, background: "#ddd2bd", display: "block" }} />
+      </div>
+
+      {/* Hero — flex:1 centers the fixed-height unit; the unit itself never reflows */}
+      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        {/* Fixed-size unit: text + doodles are one static element */}
+        <div style={{ position: "relative", width: "100%", height: 460 }}>
+          {/* Ink doodles — all at fixed pixel offsets within the 460px unit */}
           <svg
             width="30"
             height="30"
@@ -96,8 +87,8 @@ export function HomeScreen({ date, onPlay }: HomeScreenProps) {
             fill="none"
             style={{
               position: "absolute",
-              left: 92,
-              top: "10%",
+              left: 58,
+              top: 60,
               transform: "rotate(-6deg)",
               pointerEvents: "none",
             }}
@@ -116,7 +107,7 @@ export function HomeScreen({ date, onPlay }: HomeScreenProps) {
             height="30"
             viewBox="0 0 40 40"
             fill="none"
-            style={{ position: "absolute", right: 96, top: "15%", pointerEvents: "none" }}
+            style={{ position: "absolute", right: 62, top: 86, pointerEvents: "none" }}
           >
             <path
               d="M20 5C10 4 4 11 5 21C6 30 14 36 24 34C32 32 36 23 31 14C28 9 23 6 17 6"
@@ -134,7 +125,7 @@ export function HomeScreen({ date, onPlay }: HomeScreenProps) {
               position: "absolute",
               left: "50%",
               transform: "translateX(-50%)",
-              top: "19%",
+              top: 108,
               pointerEvents: "none",
             }}
           >
@@ -152,8 +143,8 @@ export function HomeScreen({ date, onPlay }: HomeScreenProps) {
             fill="none"
             style={{
               position: "absolute",
-              right: 40,
-              top: "29%",
+              right: 6,
+              top: 122,
               transform: "rotate(8deg)",
               pointerEvents: "none",
             }}
@@ -174,8 +165,8 @@ export function HomeScreen({ date, onPlay }: HomeScreenProps) {
             fill="none"
             style={{
               position: "absolute",
-              left: 46,
-              top: "33%",
+              left: 12,
+              top: 146,
               transform: "rotate(-10deg)",
               pointerEvents: "none",
             }}
@@ -193,7 +184,7 @@ export function HomeScreen({ date, onPlay }: HomeScreenProps) {
             height="28"
             viewBox="0 0 40 40"
             fill="none"
-            style={{ position: "absolute", left: 38, top: "60%", pointerEvents: "none" }}
+            style={{ position: "absolute", left: 4, top: 334, pointerEvents: "none" }}
           >
             <path
               d="M20 5C10 4 4 11 5 21C6 30 14 36 24 34C32 32 36 23 31 14C28 9 23 6 17 6"
@@ -207,7 +198,7 @@ export function HomeScreen({ date, onPlay }: HomeScreenProps) {
             height="40"
             viewBox="0 0 36 44"
             fill="none"
-            style={{ position: "absolute", right: 40, top: "59%", pointerEvents: "none" }}
+            style={{ position: "absolute", right: 6, top: 322, pointerEvents: "none" }}
           >
             <path
               d="M8 6C24 10 30 24 22 34C17 40 9 38 8 31C7 25 13 22 17 26"
@@ -225,7 +216,7 @@ export function HomeScreen({ date, onPlay }: HomeScreenProps) {
               position: "absolute",
               left: "50%",
               transform: "translateX(-50%)",
-              top: "75%",
+              top: 418,
               pointerEvents: "none",
             }}
           >
@@ -237,8 +228,17 @@ export function HomeScreen({ date, onPlay }: HomeScreenProps) {
             />
           </svg>
 
-          {/* Title + tagline sit above the doodles */}
-          <div style={{ position: "relative", zIndex: 1 }}>
+          {/* Title + tagline — centered in the 460px unit */}
+          <div
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: 0,
+              right: 0,
+              transform: "translateY(-50%)",
+              textAlign: "center",
+            }}
+          >
             <div style={{ position: "relative", display: "inline-block" }}>
               <div
                 style={{ font: "400 78px/0.92 'Libre Caslon Display', serif", color: "#20201c" }}
@@ -285,53 +285,53 @@ export function HomeScreen({ date, onPlay }: HomeScreenProps) {
             </div>
           </div>
         </div>
+      </div>
 
-        {/* CTA */}
-        <div>
-          <button
-            onClick={onPlay}
+      {/* CTA */}
+      <div>
+        <button
+          onClick={onPlay}
+          style={{
+            width: "100%",
+            border: "none",
+            background: "#20201c",
+            color: "#f6f1e7",
+            padding: 19,
+            borderRadius: 4,
+            font: "600 17px/1 'Hanken Grotesk', sans-serif",
+            letterSpacing: "0.04em",
+            cursor: "pointer",
+          }}
+        >
+          Play today's puzzle
+        </button>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 8,
+            marginTop: 16,
+          }}
+        >
+          <span
             style={{
-              width: "100%",
-              border: "none",
-              background: "#20201c",
-              color: "#f6f1e7",
-              padding: 19,
-              borderRadius: 4,
-              font: "600 17px/1 'Hanken Grotesk', sans-serif",
-              letterSpacing: "0.04em",
-              cursor: "pointer",
+              font: "600 16px/1 'Caveat', cursive",
+              color: "#a39a87",
+              whiteSpace: "nowrap",
             }}
           >
-            Play today's puzzle
-          </button>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 8,
-              marginTop: 16,
-            }}
-          >
-            <span
-              style={{
-                font: "600 16px/1 'Caveat', cursive",
-                color: "#a39a87",
-                whiteSpace: "nowrap",
-              }}
-            >
-              a new puzzle every day
-            </span>
-            <svg width="30" height="16" viewBox="0 0 36 20" fill="none">
-              <path
-                d="M3 6C14 14 24 14 33 8M33 8C29 9 26 9 23 8M33 8C32 11 31 14 30 16"
-                stroke="#a39a87"
-                strokeWidth="1.7"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </div>
+            a new puzzle every day
+          </span>
+          <svg width="30" height="16" viewBox="0 0 36 20" fill="none">
+            <path
+              d="M3 6C14 14 24 14 33 8M33 8C29 9 26 9 23 8M33 8C32 11 31 14 30 16"
+              stroke="#a39a87"
+              strokeWidth="1.7"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
         </div>
       </div>
     </div>
