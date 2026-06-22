@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Drawer } from "vaul";
 
 const STORAGE_KEY = "tutorialSeen";
 
@@ -306,9 +307,11 @@ const STEPS: StepDef[] = [
 ];
 
 export function TutorialOverlay({
+  open,
   onDismiss,
   onComplete,
 }: {
+  open: boolean;
   onDismiss: () => void;
   onComplete: () => void;
 }) {
@@ -448,6 +451,7 @@ export function TutorialOverlay({
   );
 
   if (isDesktop) {
+    if (!open) return null;
     return (
       <div
         onClick={dismiss}
@@ -480,42 +484,42 @@ export function TutorialOverlay({
   }
 
   return (
-    <div
-      onClick={dismiss}
-      style={{
-        position: "fixed",
-        inset: 0,
-        background: "rgba(28,27,24,0.52)",
-        zIndex: 100,
-        animation: "tut-backdrop 0.25s ease",
+    <Drawer.Root
+      open={open}
+      onOpenChange={(o) => {
+        if (!o) dismiss();
       }}
+      shouldScaleBackground={false}
     >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          position: "absolute",
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: "#f7f2e8",
-          borderRadius: "30px 30px 0 0",
-          boxShadow: "0 -12px 44px rgba(28,27,24,0.30)",
-          padding: "16px 28px 34px",
-          animation: "tut-slide-up 0.3s ease",
-        }}
-      >
-        {/* Handle */}
-        <div
-          style={{
-            width: 42,
-            height: 4,
-            borderRadius: 3,
-            background: "#d8cdb8",
-            margin: "0 auto 22px",
-          }}
+      <Drawer.Portal>
+        <Drawer.Overlay
+          style={{ position: "fixed", inset: 0, background: "rgba(28,27,24,0.52)", zIndex: 100 }}
         />
-        {panelContent}
-      </div>
-    </div>
+        <Drawer.Content
+          style={{
+            position: "fixed",
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 100,
+            background: "#f7f2e8",
+            borderRadius: "30px 30px 0 0",
+            boxShadow: "0 -12px 44px rgba(28,27,24,0.30)",
+            padding: "16px 28px 34px",
+          }}
+        >
+          <Drawer.Handle
+            style={{
+              width: 42,
+              height: 4,
+              borderRadius: 3,
+              background: "#d8cdb8",
+              margin: "0 auto 22px",
+            }}
+          />
+          {panelContent}
+        </Drawer.Content>
+      </Drawer.Portal>
+    </Drawer.Root>
   );
 }

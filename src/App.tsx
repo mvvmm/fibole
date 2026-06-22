@@ -43,7 +43,6 @@ export function App() {
   const [error, setError] = useState<string>("");
   const [gameStarted, setGameStarted] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
-  const [tutorialFromPlay, setTutorialFromPlay] = useState(false);
   const date = todayDate();
 
   useEffect(() => {
@@ -83,30 +82,19 @@ export function App() {
           <HomeScreen
             date={data.date}
             onPlay={() => {
-              if (!hasTutorialBeenSeen()) {
-                setTutorialFromPlay(true);
-                setShowTutorial(true);
-              } else {
+              if (hasTutorialBeenSeen()) {
                 setGameStarted(true);
+              } else {
+                setShowTutorial(true);
               }
             }}
-            onHowToPlay={() => {
-              setTutorialFromPlay(false);
-              setShowTutorial(true);
-            }}
+            onHowToPlay={() => setShowTutorial(true)}
           />
-          {showTutorial && (
-            <TutorialOverlay
-              onDismiss={() => {
-                setShowTutorial(false);
-                if (tutorialFromPlay) setGameStarted(true);
-              }}
-              onComplete={() => {
-                setShowTutorial(false);
-                setGameStarted(true);
-              }}
-            />
-          )}
+          <TutorialOverlay
+            open={showTutorial}
+            onDismiss={() => setShowTutorial(false)}
+            onComplete={() => setGameStarted(true)}
+          />
         </>
       ) : (
         <div style={inner}>
