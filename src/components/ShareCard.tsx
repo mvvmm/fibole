@@ -30,6 +30,16 @@ export function ShareCard({ gameState, rounds, date }: ShareCardProps) {
 
   async function handleShare() {
     const text = buildShareText(gameState, rounds, date);
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ text });
+        return;
+      } catch (e) {
+        if (e instanceof Error && e.name === "AbortError") return;
+      }
+    }
+
     let didCopy = false;
     try {
       await navigator.clipboard.writeText(text);
