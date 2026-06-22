@@ -42,7 +42,7 @@ export function App() {
   const [data, setData] = useState<QuestionsData | null>(null);
   const [error, setError] = useState<string>("");
   const [gameStarted, setGameStarted] = useState(false);
-  const [showTutorial, setShowTutorial] = useState(() => !hasTutorialBeenSeen());
+  const [showTutorial, setShowTutorial] = useState(false);
   const date = todayDate();
 
   useEffect(() => {
