@@ -24,9 +24,8 @@ src/               React SPA
 worker/            Cloudflare Worker
   index.ts         GET /api/questions?date=YYYY-MM-DD
 migrations/        D1 schema (applied via wrangler)
-scripts/           Content generation (not deployed)
-  generate-questions.ts
-  categories.ts
+scripts/           Reference data (not deployed, not run as scripts)
+  categories.ts    ~180 category definitions used by the generate-questions skill
 .claude/skills/    Claude Code skills
   generate-questions.md   Skill for populating D1 with questions
 ```
@@ -88,18 +87,21 @@ pnpm db:migrate:local   # apply migrations to local D1
 pnpm db:migrate:prod    # apply migrations to production D1 (--remote)
 ```
 
-Schema: `migrations/0001_init.sql` — one `questions` table with `UNIQUE(date, round_number)`.
+Schema: `migrations/` — one `questions` table with `UNIQUE(date, round_number)`. Columns include `difficulty TEXT` (easy/medium/hard, not yet surfaced in UI).
 
 ### Generating questions
 
-Use the `.claude/skills/generate-questions.md` skill. This is the only supported way to populate D1 — there is no script that calls an external API; Claude Code does the work directly:
-1. Fetches Wikipedia summaries for each entity
-2. Derives 3 true facts + 1 fib from the Wikipedia text
-3. Inserts via Cloudflare D1 REST API
+Use the `.claude/skills/generate-questions.md` skill. This is the only supported way to populate D1 — Claude Code does the work directly, no external generation script:
+
+1. Round 1 each day: fetches yesterday's top Wikipedia pageviews (Wikimedia API) and samples a trending entity
+2. Rounds 2–3: picks a category from `scripts/categories.ts`, fetches live category members from the Wikipedia MediaWiki API, checks pageviews to find a qualifying entity, and derives a difficulty rating
+3. Fetches Wikipedia summaries for the chosen entity and a donor entity (for the fib)
+4. Derives 3 true facts + 1 fib directly from the Wikipedia text — all 4 statements must cover distinct properties and must not name or imply the answer entity
+5. Inserts into D1 via Cloudflare REST API with a `difficulty` field
 
 ```
 # In a Claude Code session:
-/generate-questions --days=7 --start=2026-06-21
+/generate-questions --days=7 --start=2026-07-01
 ```
 
 The skill handles dedup automatically (queries existing answers before picking entities).
