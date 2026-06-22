@@ -307,9 +307,11 @@ const STEPS: StepDef[] = [
 ];
 
 export function TutorialOverlay({
+  open,
   onDismiss,
   onComplete,
 }: {
+  open: boolean;
   onDismiss: () => void;
   onComplete: () => void;
 }) {
@@ -326,7 +328,7 @@ export function TutorialOverlay({
 
   const dismiss = () => {
     localStorage.setItem(STORAGE_KEY, "1");
-    setTimeout(onDismiss, 300);
+    onDismiss();
   };
 
   const advance = () => {
@@ -449,6 +451,7 @@ export function TutorialOverlay({
   );
 
   if (isDesktop) {
+    if (!open) return null;
     return (
       <div
         onClick={dismiss}
@@ -481,7 +484,13 @@ export function TutorialOverlay({
   }
 
   return (
-    <Drawer.Root defaultOpen onClose={dismiss} shouldScaleBackground={false}>
+    <Drawer.Root
+      open={open}
+      onOpenChange={(o) => {
+        if (!o) dismiss();
+      }}
+      shouldScaleBackground={false}
+    >
       <Drawer.Portal>
         <Drawer.Overlay
           style={{ position: "fixed", inset: 0, background: "rgba(28,27,24,0.52)", zIndex: 100 }}
