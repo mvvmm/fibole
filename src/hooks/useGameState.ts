@@ -120,5 +120,21 @@ export function useGameState(date: string) {
     });
   }, [state, save]);
 
-  return { state, submitAnswer, submitFib, advanceRound };
+  const giveUp = useCallback(() => {
+    const ri = state.currentRound;
+    const round = { ...state.rounds[ri] };
+    round.answerPhaseComplete = true;
+    round.answerCorrect = false;
+    round.answerScore = 0;
+    const newRounds = [...state.rounds];
+    newRounds[ri] = round;
+    save({
+      ...state,
+      phase: "fib",
+      rounds: newRounds,
+      totalScore: computeTotalScore(newRounds),
+    });
+  }, [state, save]);
+
+  return { state, submitAnswer, submitFib, advanceRound, giveUp };
 }

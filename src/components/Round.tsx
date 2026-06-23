@@ -24,6 +24,7 @@ interface RoundProps {
   onSubmitAnswer: (guess: string) => void;
   onSubmitFib: (index: number) => void;
   onNext: () => void;
+  onGiveUp: () => void;
 }
 
 export function Round({
@@ -35,6 +36,7 @@ export function Round({
   onSubmitAnswer,
   onSubmitFib,
   onNext,
+  onGiveUp,
 }: RoundProps) {
   const [pendingFibIndex, setPendingFibIndex] = useState<number | null>(null);
 
@@ -152,6 +154,7 @@ export function Round({
             disabled={false}
             lastGuessWrong={lastGuessWrong}
             lastWrongGuess={lastWrongGuess}
+            onGiveUp={onGiveUp}
           />
         </div>
       </div>

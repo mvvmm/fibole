@@ -9,7 +9,7 @@ interface GameProps {
 }
 
 export function Game({ data }: GameProps) {
-  const { state, submitAnswer, submitFib, advanceRound } = useGameState(data.date);
+  const { state, submitAnswer, submitFib, advanceRound, giveUp } = useGameState(data.date);
 
   const prevPhaseRef = useRef(state.phase);
   useEffect(() => {
@@ -39,6 +39,7 @@ export function Game({ data }: GameProps) {
       onSubmitAnswer={(guess) => submitAnswer(guess, currentRoundData.answer)}
       onSubmitFib={(index) => submitFib(index, currentRoundData.fib_index)}
       onNext={advanceRound}
+      onGiveUp={giveUp}
     />
   );
 }
