@@ -154,13 +154,13 @@ Note: when targeting **hard**, the category's `minMonthlyViews` floor is ignored
 
 ## Step 4 — Fetch Wikipedia content
 
-Fetch the Wikipedia REST summary for both the main entity and the donor entity:
+Fetch the full Wikipedia article text for both the main entity and the donor entity:
 
 ```bash
-curl -s "https://en.wikipedia.org/api/rest_v1/page/summary/ENTITY_NAME_UNDERSCORED"
+curl -s "https://en.wikipedia.org/w/api.php?action=query&prop=extracts&titles=ENTITY_NAME_UNDERSCORED&format=json&formatversion=2&explaintext=true"
 ```
 
-Use the `extract` field. If the fetch fails or returns no extract, pick a different entity and retry.
+Use `.query.pages[0].extract`. Truncate to 15,000 characters if the article is unusually long. If the fetch fails or returns no extract, pick a different entity and retry.
 
 ## Step 5 — Derive facts from Wikipedia content
 
