@@ -19,10 +19,7 @@ export default {
     }
 
     if (url.pathname === "/api/questions" && request.method === "GET") {
-      const date = url.searchParams.get("date") ?? "";
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-        return json({ error: "Valid date required (YYYY-MM-DD)" }, 400);
-      }
+      const date = new Date().toLocaleDateString("en-CA", { timeZone: "America/Chicago" });
 
       const { results } = await env.DB.prepare(
         "SELECT * FROM questions WHERE date = ? ORDER BY round_number",

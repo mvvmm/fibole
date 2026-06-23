@@ -5,7 +5,7 @@ import { HomeScreen } from "./components/HomeScreen";
 import { TutorialOverlay, hasTutorialBeenSeen } from "./components/TutorialOverlay";
 
 function todayDate(): string {
-  return new Date().toLocaleDateString("en-CA");
+  return new Date().toLocaleDateString("en-CA", { timeZone: "America/Chicago" });
 }
 
 function hasGameStarted(date: string): boolean {
@@ -54,7 +54,7 @@ export function App() {
   }, [date]);
 
   useEffect(() => {
-    fetch(`/api/questions?date=${date}`)
+    fetch(`/api/questions`)
       .then((r) => {
         if (r.status === 404) throw new Error("no-questions");
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
