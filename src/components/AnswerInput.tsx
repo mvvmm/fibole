@@ -260,7 +260,7 @@ export function AnswerInput({
             border: "none",
             background: "transparent",
             padding: "13px 26px",
-            margin: "-13px -26px",
+            margin: "-13px 0",
             font: "600 19px/1 'Caveat', cursive",
             color: "#b09c7c",
             cursor: "pointer",
