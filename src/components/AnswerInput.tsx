@@ -234,7 +234,7 @@ export function AnswerInput({
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          marginTop: 20,
+          marginTop: 14,
         }}
       >
         <span style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
@@ -259,8 +259,7 @@ export function AnswerInput({
           style={{
             border: "none",
             background: "transparent",
-            padding: "13px 26px",
-            margin: "-13px 0",
+            padding: "0 26px",
             font: "600 19px/1 'Caveat', cursive",
             color: "#b09c7c",
             cursor: "pointer",
