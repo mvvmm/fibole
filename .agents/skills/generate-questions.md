@@ -121,7 +121,7 @@ Also pick a **donor entity** for the fib: any other article from the full filter
 
 ## Step 3 — Pick entity (Rounds 2–3: Category)
 
-Refer to `scripts/categories.ts` for the full category list (~180 entries). Rotate through categories across rounds and days to maintain variety.
+Refer to `scripts/categories.ts` for the full category list (~200 entries). Rotate through categories across rounds and days to maintain variety.
 
 **a. Fetch category members from Wikipedia:**
 
@@ -130,6 +130,16 @@ curl -s "https://en.wikipedia.org/w/api.php?action=query&list=categorymembers&cm
 ```
 
 This returns up to 500 article titles directly in that category.
+
+**a1. Container-category check** — many Wikipedia categories are pure "containers" that hold almost no articles directly, sorting everything into subcategories instead (e.g. by nationality, decade, or sub-specialty). If step (a) returns **fewer than ~20 titles**, don't spend your 10 pageview checks on a near-empty pool — treat it as a container:
+
+```bash
+curl -s "https://en.wikipedia.org/w/api.php?action=query&list=categorymembers&cmtitle=Category:CATEGORY_NAME&cmlimit=50&cmnamespace=14&cmtype=subcat&format=json"
+```
+
+Pick 2–4 subcategories at random from the results, fetch their direct page members the same way as step (a), and pool them together as your candidate list. If a chosen subcategory is *itself* a thin container, one more level of recursion is fine — but don't go deeper than that; skip to a different category instead.
+
+This is a working fallback, not a substitute for a good category list — if a category needs this fallback repeatedly across runs, it's a sign `scripts/categories.ts` should be updated to point at a more specific, better-populated category (or a `wikipediaCategory` that's actually a curated list-article rather than a category namespace).
 
 **b. Filter and shuffle** — remove any titles already in the used-answers set. Shuffle the remaining list.
 
