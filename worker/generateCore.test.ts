@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { trendingRoundPosition, findDateNeedingWork } from "./scheduled";
+import { trendingRoundPosition, findDateNeedingWork } from "./generateCore";
 
 // ─── trendingRoundPosition ────────────────────────────────────────────────────
 

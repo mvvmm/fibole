@@ -23,10 +23,12 @@ src/               React SPA
   types.ts
 worker/            Cloudflare Worker
   index.ts         GET /api/questions?date=YYYY-MM-DD; wires in the scheduled() cron handler
-  scheduled.ts     Daily cron entry point — tops up D1 to a 7-day buffer (see "Generating questions")
+  scheduled.ts     Cron-only wiring — builds binding-backed clients, calls generateCore's runTopUp
+  generateCore.ts  Runtime-agnostic top-up/generation logic, shared with scripts/generate-questions.ts
 migrations/        D1 schema (applied via wrangler)
-scripts/           category data, imported by both the skill and the Worker's cron generator; not runnable standalone
-  categories.ts    ~180 category definitions
+scripts/           category data + the local question-generation CLI (see "Generating questions")
+  categories.ts          ~180 category definitions
+  generate-questions.ts  `pnpm generate` — runs generateCore.ts's pipeline over the Cloudflare REST API
 .claude/skills/    Claude Code skills
   generate-questions.md   Skill for populating D1 with questions
 ```
@@ -39,7 +41,7 @@ cp .env.example .env   # fill in CLOUDFLARE_API_TOKEN and CLOUDFLARE_API_TOKEN
 ```
 
 Required `.env` values (never commit the real `.env`):
-- `CLOUDFLARE_API_TOKEN` — D1:Edit + Workers Scripts:Edit + Account Settings:Read
+- `CLOUDFLARE_API_TOKEN` — D1:Edit + Workers Scripts:Edit + Account Settings:Read + Workers AI:Read (the last is only needed to run `pnpm generate`; see "Generating questions")
 - `CLOUDFLARE_ACCOUNT_ID` — 9d38d6df51b1822215655c1a96ba0626
 - `D1_DATABASE_ID` — 5fc36128-3e05-4fec-aded-4d0217231297
 
@@ -92,17 +94,19 @@ Schema: `migrations/` — one `questions` table with `UNIQUE(date, round_number)
 
 ### Generating questions
 
-Two ways to populate D1:
+Three ways to populate D1. The first two share one core pipeline (`worker/generateCore.ts`'s `runTopUp`) behind a runtime-agnostic `DbClient`/`AiClient` interface (`worker/clients.ts`) — same logic, different transport to D1/Workers AI:
 
-- **Automated (primary)** — a daily Worker Cron Trigger (`worker/scheduled.ts`, `0 0 * * *` UTC) tops up D1 to a rolling 7-day buffer, generating only the missing round(s) for the earliest incomplete date each run, so a partial failure gets recovered by a later run rather than skipped. Entity selection (trending pageviews, or a `scripts/categories.ts` category with a container-category subcat fallback) and difficulty targeting (a fixed day-of-week schedule in `worker/difficulty.ts`) are deterministic TypeScript; only the final fact/fib derivation is a single structured call to DeepSeek V4 Flash on Workers AI (`worker/factGeneration.ts`), routed through the `fibole-questions` AI Gateway (`ai` binding + `AI_GATEWAY_ID` var in `wrangler.jsonc`). That gateway's $10/month spend limit, 20/hour rate limit, Authenticated Gateway, and Unified Billing credit balance are configured in the Cloudflare dashboard/API, not in `wrangler.jsonc`. If the model judges a selected entity doesn't actually match its expected category, it calls `reject_entity` instead of forcing facts from mismatched content, and the cron retries with a different entity (bounded, so a persistently bad category can't loop forever).
-- **Manual (backfill)** — the `.claude/skills/generate-questions.md` skill, run interactively via Claude Code:
+- **Automated (primary)** — a daily Worker Cron Trigger (`worker/scheduled.ts`, `0 0 * * *` UTC) tops up D1 to a rolling 7-day buffer, generating only the missing round(s) for the earliest incomplete date each run, so a partial failure gets recovered by a later run rather than skipped. Talks to D1 and Workers AI via bindings (`worker/workerClients.ts`).
+- **Manual, local script** — `pnpm generate` (`scripts/generate-questions.ts`; `-- --days=N` to fill in N missing days) runs the identical pipeline from your machine, over the Cloudflare REST API (`scripts/restClients.ts`) instead of bindings. There is no "local" mode — it always targets PRODUCTION D1 and spends real (small) AI Gateway budget. Requires `.env`'s `CLOUDFLARE_API_TOKEN` to also hold **Account → Workers AI → Read** permission, separate from whatever `AI Gateway` permission administers the gateway itself — the gateway only routes/bills the request; the model-execution endpoint is gated by Workers AI permission regardless of the gateway header. Use this to top up the buffer without waiting for the cron, or to test pipeline changes without `wrangler dev`/deploy.
+- **Manual, interactive skill (backfill)** — the `.claude/skills/generate-questions.md` skill, run via Claude Code:
   ```
-  # In a Claude Code session:
   /generate-questions --days=7 --start=2026-07-01
   ```
-  Use this for bulk-seeding many days at once, regenerating a specific bad day, or testing — not day-to-day generation. Its Step 5 fact/fib rules are mirrored in `worker/factGeneration.ts`'s system prompt; keep both in sync if the rules change, since there's no way to share code between markdown prose executed by Claude and a TypeScript string executed by DeepSeek.
+  Use this for bulk-seeding many days at once or regenerating a specific bad day — not day-to-day generation. Its Step 5 fact/fib rules are mirrored in `worker/factGeneration.ts`'s system prompt; keep both in sync if the rules change, since there's no way to share code between markdown prose executed by Claude and a TypeScript string executed by DeepSeek.
 
-Both paths dedup automatically against existing answers before picking entities (`worker/db.ts`'s `getUsedAnswers` for the cron; a `SELECT` in the skill).
+Entity selection (trending pageviews, or a `scripts/categories.ts` category with a container-category subcat fallback) and difficulty targeting (a fixed day-of-week schedule in `worker/difficulty.ts`) are deterministic TypeScript; only the final fact/fib derivation is a single structured call to DeepSeek V4 Flash on Workers AI (`worker/factGeneration.ts`), routed through the `fibole-questions` AI Gateway. If the model judges a selected entity doesn't actually match its expected category, it calls `reject_entity` instead of forcing facts from mismatched content, and the caller retries with a different entity (bounded, so a persistently bad category can't loop forever). That gateway's $10/month spend limit, 20/hour rate limit, Authenticated Gateway, and Unified Billing credit balance are configured in the Cloudflare dashboard/API, not in `wrangler.jsonc`.
+
+All three paths dedup automatically against existing answers before picking entities (`worker/db.ts`'s `getUsedAnswers` for the two automated/script paths; a `SELECT` in the skill).
 
 ## API
 
