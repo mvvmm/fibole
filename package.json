@@ -13,6 +13,7 @@
     "db:migrate:prod": "wrangler d1 migrations apply fibole-db --remote",
     "generate": "tsx scripts/generate-questions.ts",
     "generate:assets": "tsx scripts/generate-og-assets.ts",
+    "metrics": "tsx scripts/metrics.ts",
     "test": "vitest",
     "test:run": "vitest run",
     "typecheck": "tsc --build",
