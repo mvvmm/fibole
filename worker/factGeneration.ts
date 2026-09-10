@@ -7,7 +7,7 @@
 // rules, but there's no way to share code between markdown prose executed by
 // Claude and a TypeScript string executed by DeepSeek.
 
-import type { Env } from "./types";
+import type { AiClient } from "./clients";
 
 const MODEL_ID = "@cf/deepseek-ai/deepseek-v4-flash-0731";
 
@@ -253,17 +253,8 @@ function isSpendLimitError(err: unknown): boolean {
   return message.includes("429");
 }
 
-// @cloudflare/workers-types' Ai.run() overloads are keyed by a fixed union of
-// model-id literals that may not yet include a model this new — cast through
-// a minimal structural type rather than fighting the generic overloads.
-type AiRunFn = (
-  model: string,
-  inputs: Record<string, unknown>,
-  options?: Record<string, unknown>,
-) => Promise<unknown>;
-
 async function callModel(
-  env: Env,
+  ai: AiClient,
   input: FactGenerationInput,
   retryReason?: string,
 ): Promise<unknown> {
@@ -280,12 +271,7 @@ async function callModel(
 
   let response: unknown;
   try {
-    const run = env.AI.run.bind(env.AI) as unknown as AiRunFn;
-    response = await run(
-      MODEL_ID,
-      { messages, tools: [SUBMIT_ROUND_TOOL, REJECT_ENTITY_TOOL] },
-      { gateway: { id: env.AI_GATEWAY_ID, skipCache: true } },
-    );
+    response = await ai.run(MODEL_ID, { messages, tools: [SUBMIT_ROUND_TOOL, REJECT_ENTITY_TOOL] });
   } catch (err) {
     if (isSpendLimitError(err)) throw new AiGatewaySpendLimitError();
     throw err;
@@ -301,10 +287,10 @@ async function callModel(
  * different entity instead, not re-ask about the same mismatched content.
  */
 export async function generateFacts(
-  env: Env,
+  ai: AiClient,
   input: FactGenerationInput,
 ): Promise<FactGenerationResult> {
-  const first = await callModel(env, input);
+  const first = await callModel(ai, input);
   const firstRejection = parseRejection(first);
   if (firstRejection) throw new EntityRejectedError(firstRejection.reason);
 
@@ -312,7 +298,7 @@ export async function generateFacts(
   const firstCheck = validateFactsResult(firstArgs, input.mainName);
   if (firstCheck.ok) return toResult(firstArgs as Record<string, unknown>);
 
-  const second = await callModel(env, input, firstCheck.reason);
+  const second = await callModel(ai, input, firstCheck.reason);
   const secondRejection = parseRejection(second);
   if (secondRejection) throw new EntityRejectedError(secondRejection.reason);
 

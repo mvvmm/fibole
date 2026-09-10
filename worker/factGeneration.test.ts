@@ -7,7 +7,7 @@ import {
   EntityRejectedError,
   type FactGenerationInput,
 } from "./factGeneration";
-import type { Env } from "./types";
+import type { AiClient } from "./clients";
 
 // ─── validateFactsResult ──────────────────────────────────────────────────────
 
@@ -201,12 +201,8 @@ function toolCallResponse(name: string, args: unknown) {
   };
 }
 
-function fakeEnv(run: (...args: unknown[]) => unknown): Env {
-  return {
-    AI: { run } as unknown as Env["AI"],
-    AI_GATEWAY_ID: "test-gateway",
-    DB: {} as Env["DB"],
-  };
+function fakeAi(run: (...args: unknown[]) => unknown): AiClient {
+  return { run } as unknown as AiClient;
 }
 
 const INPUT: FactGenerationInput = {
@@ -220,7 +216,7 @@ const INPUT: FactGenerationInput = {
 describe("generateFacts", () => {
   it("returns the result on a first-try success, calling the model once", async () => {
     const run = vi.fn().mockResolvedValue(toolCallResponse("submit_round", VALID));
-    const result = await generateFacts(fakeEnv(run), INPUT);
+    const result = await generateFacts(fakeAi(run), INPUT);
     expect(result).toEqual({
       facts: VALID.facts,
       fibIndex: VALID.fib_index,
@@ -233,7 +229,7 @@ describe("generateFacts", () => {
     const run = vi
       .fn()
       .mockResolvedValue(toolCallResponse("reject_entity", { reason: "this is a document" }));
-    await expect(generateFacts(fakeEnv(run), INPUT)).rejects.toThrow(EntityRejectedError);
+    await expect(generateFacts(fakeAi(run), INPUT)).rejects.toThrow(EntityRejectedError);
     expect(run).toHaveBeenCalledTimes(1);
   });
 
@@ -242,7 +238,7 @@ describe("generateFacts", () => {
       .fn()
       .mockResolvedValueOnce(toolCallResponse("submit_round", { ...VALID, facts: ["too short"] }))
       .mockResolvedValueOnce(toolCallResponse("submit_round", VALID));
-    const result = await generateFacts(fakeEnv(run), INPUT);
+    const result = await generateFacts(fakeAi(run), INPUT);
     expect(result.facts).toEqual(VALID.facts);
     expect(run).toHaveBeenCalledTimes(2);
   });
@@ -254,7 +250,7 @@ describe("generateFacts", () => {
       .mockResolvedValueOnce(
         toolCallResponse("reject_entity", { reason: "mismatched on second look" }),
       );
-    await expect(generateFacts(fakeEnv(run), INPUT)).rejects.toThrow(EntityRejectedError);
+    await expect(generateFacts(fakeAi(run), INPUT)).rejects.toThrow(EntityRejectedError);
     expect(run).toHaveBeenCalledTimes(2);
   });
 
@@ -262,7 +258,7 @@ describe("generateFacts", () => {
     const run = vi
       .fn()
       .mockResolvedValue(toolCallResponse("submit_round", { ...VALID, facts: ["too short"] }));
-    await expect(generateFacts(fakeEnv(run), INPUT)).rejects.toThrow(
+    await expect(generateFacts(fakeAi(run), INPUT)).rejects.toThrow(
       /failed validation after retry/,
     );
     expect(run).toHaveBeenCalledTimes(2);
