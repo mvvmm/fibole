@@ -87,7 +87,12 @@ export async function runTopUp(
 
   const usedAnswers = await getUsedAnswers(db);
   const trendingRound = trendingRoundPosition(work.date);
-  const yesterdayOfWorkDate = addDaysISO(work.date, -1);
+  // The freshest pageview data Wikimedia can have is for yesterday relative
+  // to *now* (`today`) — not relative to `work.date`, which may be days in
+  // the future when topping up ahead of schedule. Wikimedia has no data yet
+  // for a day that hasn't finished, so using work.date - 1 here would make
+  // the trending round unfillable for any date beyond tomorrow.
+  const trendingDataDate = addDaysISO(today, -1);
   // Keeps the (up to) 2 category rounds within this date distinct from each other.
   const categoryNamesUsedToday = new Set<string>();
 
@@ -99,7 +104,7 @@ export async function runTopUp(
         work.date,
         roundNumber,
         roundNumber === trendingRound,
-        yesterdayOfWorkDate,
+        trendingDataDate,
         usedAnswers,
         categoryNamesUsedToday,
       );
@@ -142,7 +147,7 @@ async function generateRound(
   date: string,
   roundNumber: 1 | 2 | 3,
   isTrending: boolean,
-  yesterdayISO: string,
+  trendingDataDate: string,
   usedAnswers: Set<string>,
   categoryNamesUsedToday: Set<string>,
 ): Promise<void> {
@@ -150,7 +155,7 @@ async function generateRound(
 
   for (let attempt = 1; attempt <= MAX_ENTITY_ATTEMPTS; attempt++) {
     const selection: EntitySelectionResult | null = isTrending
-      ? await selectTrendingEntity(usedAnswers, targetDifficulty, yesterdayISO)
+      ? await selectTrendingEntity(usedAnswers, targetDifficulty, trendingDataDate)
       : await selectCategoryEntity(usedAnswers, targetDifficulty, categoryNamesUsedToday);
 
     if (!selection) {
