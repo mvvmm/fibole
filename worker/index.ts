@@ -1,4 +1,6 @@
 import type { Env } from "./types";
+import { todayChicago } from "./date";
+import { scheduled } from "./scheduled";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -19,7 +21,7 @@ export default {
     }
 
     if (url.pathname === "/api/questions" && request.method === "GET") {
-      const date = new Date().toLocaleDateString("en-CA", { timeZone: "America/Chicago" });
+      const date = todayChicago();
 
       const { results } = await env.DB.prepare(
         "SELECT * FROM questions WHERE date = ? ORDER BY round_number",
@@ -45,4 +47,5 @@ export default {
 
     return json({ error: "Not found" }, 404);
   },
+  scheduled,
 } satisfies ExportedHandler<Env>;

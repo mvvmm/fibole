@@ -22,10 +22,11 @@ src/               React SPA
   lib/             scoring.ts, utils.ts
   types.ts
 worker/            Cloudflare Worker
-  index.ts         GET /api/questions?date=YYYY-MM-DD
+  index.ts         GET /api/questions?date=YYYY-MM-DD; wires in the scheduled() cron handler
+  scheduled.ts     Daily cron entry point — tops up D1 to a 7-day buffer (see "Generating questions")
 migrations/        D1 schema (applied via wrangler)
-scripts/           Reference data (not deployed, not run as scripts)
-  categories.ts    ~180 category definitions used by the generate-questions skill
+scripts/           category data, imported by both the skill and the Worker's cron generator; not runnable standalone
+  categories.ts    ~180 category definitions
 .claude/skills/    Claude Code skills
   generate-questions.md   Skill for populating D1 with questions
 ```
@@ -91,20 +92,17 @@ Schema: `migrations/` — one `questions` table with `UNIQUE(date, round_number)
 
 ### Generating questions
 
-Use the `.claude/skills/generate-questions.md` skill. This is the only supported way to populate D1 — Claude Code does the work directly, no external generation script:
+Two ways to populate D1:
 
-1. Round 1 each day: fetches yesterday's top Wikipedia pageviews (Wikimedia API) and samples a trending entity
-2. Rounds 2–3: picks a category from `scripts/categories.ts`, fetches live category members from the Wikipedia MediaWiki API, checks pageviews to find a qualifying entity, and derives a difficulty rating
-3. Fetches Wikipedia summaries for the chosen entity and a donor entity (for the fib)
-4. Derives 3 true facts + 1 fib directly from the Wikipedia text — all 4 statements must cover distinct properties and must not name or imply the answer entity
-5. Inserts into D1 via Cloudflare REST API with a `difficulty` field
+- **Automated (primary)** — a daily Worker Cron Trigger (`worker/scheduled.ts`, `0 0 * * *` UTC) tops up D1 to a rolling 7-day buffer, generating only the missing round(s) for the earliest incomplete date each run, so a partial failure gets recovered by a later run rather than skipped. Entity selection (trending pageviews, or a `scripts/categories.ts` category with a container-category subcat fallback) and difficulty targeting (a fixed day-of-week schedule in `worker/difficulty.ts`) are deterministic TypeScript; only the final fact/fib derivation is a single structured call to DeepSeek V4 Flash on Workers AI (`worker/factGeneration.ts`), routed through the `fibole-questions` AI Gateway (`ai` binding + `AI_GATEWAY_ID` var in `wrangler.jsonc`). That gateway's $10/month spend limit, 20/hour rate limit, Authenticated Gateway, and Unified Billing credit balance are configured in the Cloudflare dashboard/API, not in `wrangler.jsonc`. If the model judges a selected entity doesn't actually match its expected category, it calls `reject_entity` instead of forcing facts from mismatched content, and the cron retries with a different entity (bounded, so a persistently bad category can't loop forever).
+- **Manual (backfill)** — the `.claude/skills/generate-questions.md` skill, run interactively via Claude Code:
+  ```
+  # In a Claude Code session:
+  /generate-questions --days=7 --start=2026-07-01
+  ```
+  Use this for bulk-seeding many days at once, regenerating a specific bad day, or testing — not day-to-day generation. Its Step 5 fact/fib rules are mirrored in `worker/factGeneration.ts`'s system prompt; keep both in sync if the rules change, since there's no way to share code between markdown prose executed by Claude and a TypeScript string executed by DeepSeek.
 
-```
-# In a Claude Code session:
-/generate-questions --days=7 --start=2026-07-01
-```
-
-The skill handles dedup automatically (queries existing answers before picking entities).
+Both paths dedup automatically against existing answers before picking entities (`worker/db.ts`'s `getUsedAnswers` for the cron; a `SELECT` in the skill).
 
 ## API
 
@@ -149,5 +147,7 @@ Returns 404 if no questions exist for the date.
 
 - `pnpm db:migrate:prod` requires `--remote` (already set in package.json) — without it wrangler silently targets local
 - The Vite plugin redirects wrangler config to `dist/factual/wrangler.json` at build time; don't edit that file
+- Plain `wrangler dev` (including `--test-scheduled`, for testing the cron) reads that pre-built redirected config and bundle, not your live `wrangler.jsonc`/`worker/*.ts` edits — run `pnpm build` after any such change before testing locally this way
 - Questions are served including the answer and fib index — no anti-cheat, by design (no user accounts)
 - The `facts` column is stored as a JSON string; parse it with `JSON.parse` on read
+- `env.AI.run()` in local dev always hits the real Workers AI/AI Gateway service (no local mock) — real usage, small but real cost

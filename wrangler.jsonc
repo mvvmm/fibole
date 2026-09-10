@@ -26,5 +26,19 @@
       "database_id": "5fc36128-3e05-4fec-aded-4d0217231297",
       "migrations_dir": "migrations"
     }
-  ]
+  ],
+  "ai": {
+    "binding": "AI"
+  },
+  "vars": {
+    // Name of the AI Gateway routing the daily generator's LLM calls, with a
+    // $10/month Spend Limit configured on it (dashboard/API, not IaC). See
+    // AGENTS.md's "Generating questions" section.
+    "AI_GATEWAY_ID": "fibole-questions"
+  },
+  "triggers": {
+    // Once daily. Always UTC — the job just needs to run once/day to top up
+    // the 7-day question buffer, not fire at an exact America/Chicago instant.
+    "crons": ["0 0 * * *"]
+  }
 }
