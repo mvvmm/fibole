@@ -44,7 +44,13 @@ Previews share the production question database for the read-only API. They have
 | Preview build | `pnpm run build` |
 | Preview deploy | `pnpm run deploy:preview` |
 
-Enable preview builds in the Worker’s build settings. Verify both URLs reported by Workers Builds with `pnpm check:app <url>` after a fresh preview and after redeployment.
+Enable preview builds in the Worker’s build settings. Projects with a legacy non-production trigger must migrate it first:
+
+```sh
+pnpm exec cf workers-builds workers migrate-to-previews <worker-script-tag> --deploy-command 'pnpm run deploy:preview'
+```
+
+Changing the legacy deploy command alone does not enable Preview reporting in PR comments. Verify `previews_enabled: true` with `cf builds workers get <worker-script-tag>`, then push a commit to trigger a Preview build. Verify both reported URLs with `pnpm check:app <url>` after a fresh preview and after redeployment.
 
 ## Checks
 
