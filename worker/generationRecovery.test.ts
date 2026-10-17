@@ -109,6 +109,25 @@ afterEach(() => {
 });
 
 describe("generation recovery", () => {
+  it("uses a recent trending dataset when yesterday's aggregate is not published yet", async () => {
+    const successful = successfulWikipedia();
+    const fetch = vi.fn().mockImplementation(async (input: string) => {
+      if (input.includes("/top/") && input.endsWith("2026/10/18")) {
+        return new Response(null, { status: 404 });
+      }
+      return successful(input);
+    });
+    vi.stubGlobal("fetch", fetch);
+    const db = database();
+    await runTopUp(db, ai(), { maxRounds: 1, wikipedia: new WikipediaClient(40) });
+    expect(db.rows).toHaveLength(1);
+    expect(db.rows[0].topic).toBe("Trending");
+    expect(fetch.mock.calls.map(([url]) => url).filter((url) => url.includes("/top/"))).toEqual([
+      expect.stringContaining("2026/10/18"),
+      expect.stringContaining("2026/10/17"),
+    ]);
+  });
+
   it("stops a recursive category search before the Free plan limit and reports failure", async () => {
     vi.setSystemTime(new Date("2026-10-17T12:00:00Z"));
     const fetch = vi.fn().mockImplementation(async (input: string) => {

@@ -3,7 +3,8 @@
 // code, wiring together wikipedia.ts (fetches) and difficulty.ts (banding).
 
 import { CATEGORIES, type Category } from "../scripts/categories";
-import { WikipediaClient, filterEligibleTitles, shuffle } from "./wikipedia";
+import { addDaysISO } from "./date";
+import { WikipediaClient, filterEligibleTitles, shuffle, type TrendingArticle } from "./wikipedia";
 import {
   classifyByRank,
   classifyByViews,
@@ -43,14 +44,19 @@ export async function selectTrendingEntity(
   yesterdayISO: string,
   wikipedia = new WikipediaClient(),
 ): Promise<EntitySelectionResult | null> {
-  const trending = await wikipedia.fetchTrendingTop(yesterdayISO);
-  if (trending.length === 0) return null;
-
-  const eligible = filterEligibleTitles(
-    trending.map((a) => a.title),
-    usedAnswers,
-  );
-  if (eligible.length === 0) return null;
+  // Wikimedia's daily aggregates can lag behind the calendar. Try the
+  // preceding two dates too rather than blocking the entire question buffer.
+  let trending: TrendingArticle[] = [];
+  let eligible: string[] = [];
+  for (let offset = 0; offset < 3; offset++) {
+    trending = await wikipedia.fetchTrendingTop(addDaysISO(yesterdayISO, -offset));
+    eligible = filterEligibleTitles(
+      trending.map((a) => a.title),
+      usedAnswers,
+    );
+    if (eligible.length >= 2) break;
+  }
+  if (eligible.length < 2) return null;
 
   const rankByTitle = new Map(trending.map((a) => [a.title, a.rank]));
   const pools: Record<Difficulty, string[]> = { easy: [], medium: [], hard: [] };
