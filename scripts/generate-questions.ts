@@ -2,9 +2,9 @@
 // (worker/scheduled.ts's runTopUp) — against PRODUCTION D1 and the real AI
 // Gateway, via the Cloudflare REST API instead of Worker bindings. There is
 // no "local" mode: the REST API always talks to your real Cloudflare
-// account, unlike `wrangler dev`'s local D1 simulation. Useful for
+// account, unlike `cf dev`'s local D1 simulation. Useful for
 // backfilling/bulk-seeding without waiting for the cron, or for testing
-// pipeline changes without wrangler dev/deploy. See AGENTS.md's "Generating
+// pipeline changes without cf dev/deploy. See AGENTS.md's "Generating
 // questions" section.
 //
 // Requires .env: CLOUDFLARE_API_TOKEN (needs Workers AI Run permission, in
