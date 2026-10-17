@@ -16,5 +16,12 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["vite.config.ts", "vitest.config.ts", "scripts/generate-questions.ts", "scripts/restClients.ts"]
+  "include": [
+    "vite.config.ts",
+    "vitest.config.ts",
+    "scripts/generate-questions.ts",
+    "scripts/restClients.ts",
+    "cloudflare.config.ts",
+    ".cloudflare/types"
+  ]
 }

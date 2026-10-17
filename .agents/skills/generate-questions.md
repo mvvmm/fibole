@@ -40,18 +40,18 @@ When entity selection for a target difficulty fails (e.g., no category members f
 
 **`--remote` → production D1.** Use this when generating real questions for the live game.
 
-This mirrors the wrangler convention used elsewhere in the project (`pnpm db:migrate:local` vs `pnpm db:migrate:prod`).
+This skill defaults to local. cf D1 commands target production unless `--local` is supplied.
 
 ### Local D1 queries
 
-Use `wrangler d1 execute fibole-db --local` for all D1 reads and writes:
+Use `pnpm exec cf d1 raw 5fc36128-3e05-4fec-aded-4d0217231297 --local --persist-to .cloudflare/state` for all D1 reads and writes:
 
 ```bash
 # Read
-wrangler d1 execute fibole-db --local --json --command "SELECT answer FROM questions"
+pnpm exec cf d1 raw 5fc36128-3e05-4fec-aded-4d0217231297 --local --persist-to .cloudflare/state --sql "SELECT answer FROM questions"
 
 # Write
-wrangler d1 execute fibole-db --local --json --command \
+pnpm exec cf d1 raw 5fc36128-3e05-4fec-aded-4d0217231297 --local --persist-to .cloudflare/state --sql \
   "INSERT OR IGNORE INTO questions (date, round_number, topic, answer, facts, fib_index, fib_true_subject, difficulty) VALUES ('DATE', ROUND, 'TOPIC', 'ANSWER', '[\"f0\",\"f1\",\"f2\",\"f3\"]', FIB_INDEX, 'FIB_SUBJECT', 'DIFFICULTY')"
 ```
 

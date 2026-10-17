@@ -77,7 +77,7 @@ describe("validateFactsResult", () => {
 
 describe("parseToolCall", () => {
   it("parses the real deepseek-v4-flash shape: choices[0].message.tool_calls[0].function.arguments", () => {
-    // Confirmed empirically against the live model (2026-09) via a local wrangler dev run.
+    // Confirmed empirically against the live model (2026-09) via a local development run.
     const response = {
       choices: [
         {

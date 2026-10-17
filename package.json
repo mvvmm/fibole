@@ -4,22 +4,24 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "cf dev",
+    "build": "cf build",
     "preview": "vite preview",
-    "deploy": "pnpm run build && wrangler deploy",
-    "cf-typegen": "wrangler types",
-    "db:migrate:local": "wrangler d1 migrations apply fibole-db --local",
-    "db:migrate:prod": "wrangler d1 migrations apply fibole-db --remote",
+    "deploy": "cf deploy",
+    "cf-typegen": "cf workers types",
+    "db:migrate:local": "cf d1 migrations apply 5fc36128-3e05-4fec-aded-4d0217231297 --local --persist-to .cloudflare/state",
+    "db:migrate:prod": "cf d1 migrations apply 5fc36128-3e05-4fec-aded-4d0217231297",
     "generate": "tsx scripts/generate-questions.ts",
     "generate:assets": "tsx scripts/generate-og-assets.ts",
     "metrics": "tsx scripts/metrics.ts",
     "test": "vitest",
     "test:run": "vitest run",
-    "typecheck": "tsc --build",
+    "typecheck": "cf workers types && tsc --build",
     "lint": "oxlint src worker",
-    "format:check": "oxfmt --check src worker vitest.config.ts",
-    "format:write": "oxfmt src worker vitest.config.ts"
+    "format:check": "oxfmt --check src worker vite.config.ts vitest.config.ts cloudflare.config.ts scripts/check-app.mjs",
+    "format:write": "oxfmt src worker vite.config.ts vitest.config.ts cloudflare.config.ts scripts/check-app.mjs",
+    "deploy:preview": "cf previews deploy",
+    "check:app": "node scripts/check-app.mjs"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",
@@ -39,13 +41,13 @@
   },
   "devDependencies": {
     "@anthropic-ai/sdk": "^0.36.3",
-    "@cloudflare/vite-plugin": "^1.42.1",
-    "@cloudflare/workers-types": "^4.20260619.1",
+    "@cloudflare/vite-plugin": "2.0.0-beta.v.1",
     "@tailwindcss/vite": "^4.3.1",
     "@types/node": "^22.19.21",
     "@types/react": "^18.3.31",
     "@types/react-dom": "^18.3.7",
-    "@vitejs/plugin-react": "^4.7.0",
+    "@vitejs/plugin-react": "^5.2.0",
+    "cf": "1.0.0-beta.18",
     "dotenv": "^16.6.1",
     "oxfmt": "^0.55.0",
     "oxlint": "^1.70.0",
@@ -53,8 +55,10 @@
     "tailwindcss": "^4.3.1",
     "tsx": "^4.22.4",
     "typescript": "^5.9.3",
-    "vite": "^6.4.3",
-    "vitest": "^4.1.9",
-    "wrangler": "^4.103.0"
+    "vite": "^7.3.7",
+    "vitest": "^4.1.9"
+  },
+  "engines": {
+    "node": ">=22.18.0"
   }
 }
