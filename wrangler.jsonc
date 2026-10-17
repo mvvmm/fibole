@@ -37,8 +37,8 @@
     "AI_GATEWAY_ID": "fibole-questions"
   },
   "triggers": {
-    // Once daily. Always UTC — the job just needs to run once/day to top up
-    // the 7-day question buffer, not fire at an exact America/Chicago instant.
-    "crons": ["0 0 * * *"]
+    // One missing round per hour, with a fresh subrequest budget each time.
+    // Extra runs recover failures and rebuild the 7-day buffer; full = no-op.
+    "crons": ["0 * * * *"]
   }
 }

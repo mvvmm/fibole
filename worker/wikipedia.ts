@@ -42,86 +42,119 @@ export function shuffle<T>(items: readonly T[]): T[] {
 
 // ─── Live fetches ─────────────────────────────────────────────────────────────
 
-async function wikiFetch(url: string): Promise<unknown | null> {
-  try {
-    const res = await fetch(url, {
-      headers: { "User-Agent": USER_AGENT, Accept: "application/json" },
-    });
-    if (!res.ok) return null;
-    return await res.json();
-  } catch {
-    return null;
-  }
-}
-
 export interface TrendingArticle {
   title: string;
   rank: number;
 }
 
-/** Yesterday's (or any given date's) top Wikipedia pageviews, rank-ordered. */
-export async function fetchTrendingTop(dateISO: string): Promise<TrendingArticle[]> {
-  const [year, month, day] = dateISO.split("-");
-  const url = `https://wikimedia.org/api/rest_v1/metrics/pageviews/top/en.wikipedia.org/all-access/${year}/${month}/${day}`;
-  const data = (await wikiFetch(url)) as {
-    items?: { articles?: { article: string; rank: number }[] }[];
-  } | null;
-  const articles = data?.items?.[0]?.articles ?? [];
-  return articles.map((a) => ({ title: a.article, rank: a.rank }));
-}
+/** One client per generation run; its budget includes redirect hops. */
+export class WikipediaClient {
+  private requests = 0;
 
-/** Up to `limit` direct article titles in a category (namespace 0, type page). */
-export async function fetchCategoryMembers(category: string, limit = 500): Promise<string[]> {
-  const url = `https://en.wikipedia.org/w/api.php?action=query&list=categorymembers&cmtitle=${encodeURIComponent(category)}&cmlimit=${limit}&cmnamespace=0&cmtype=page&format=json`;
-  const data = (await wikiFetch(url)) as {
-    query?: { categorymembers?: { title: string }[] };
-  } | null;
-  return (data?.query?.categorymembers ?? []).map((m) => m.title);
-}
+  constructor(private readonly maxRequests = Infinity) {}
 
-/** Up to `limit` subcategories of a category (namespace 14, type subcat). */
-export async function fetchSubcategories(category: string, limit = 50): Promise<string[]> {
-  const url = `https://en.wikipedia.org/w/api.php?action=query&list=categorymembers&cmtitle=${encodeURIComponent(category)}&cmlimit=${limit}&cmnamespace=14&cmtype=subcat&format=json`;
-  const data = (await wikiFetch(url)) as {
-    query?: { categorymembers?: { title: string }[] };
-  } | null;
-  return (data?.query?.categorymembers ?? []).map((m) => m.title);
-}
+  private async request(initialUrl: string): Promise<unknown | null> {
+    let url = initialUrl;
+    for (let redirects = 0; redirects <= 5; redirects++) {
+      if (this.requests >= this.maxRequests) {
+        throw new Error(`Wikipedia request budget exhausted (${this.maxRequests})`);
+      }
+      this.requests++;
+      let res: Response;
+      try {
+        res = await fetch(url, {
+          headers: { "User-Agent": USER_AGENT, Accept: "application/json" },
+          redirect: "manual",
+        });
+      } catch (cause) {
+        throw new Error(`Wikipedia request failed for ${url}: ${String(cause)}`, { cause });
+      }
+      if ([301, 302, 303, 307, 308].includes(res.status)) {
+        const location = res.headers.get("Location");
+        await res.body?.cancel();
+        if (!location) throw new Error(`Wikipedia redirect without Location for ${url}`);
+        url = new URL(location, url).href;
+        continue;
+      }
+      // A missing article or unavailable pageview dataset is an ordinary miss.
+      // Transport errors and rate limits must reach the cron's failure logs.
+      if (res.status === 404) {
+        await res.body?.cancel();
+        return null;
+      }
+      if (!res.ok) {
+        await res.body?.cancel();
+        throw new Error(`Wikipedia HTTP ${res.status} for ${url}`);
+      }
+      return await res.json();
+    }
+    throw new Error(`Too many Wikipedia redirects for ${initialUrl}`);
+  }
 
-/**
- * Average monthly pageviews over a rolling window of `months` ending at the
- * last fully-complete month before `referenceDateISO` (defaults to now).
- */
-export async function fetchAveragePageviews(
-  title: string,
-  months = 5,
-  referenceDateISO = todayISO(),
-): Promise<number> {
-  const [refYear, refMonth] = referenceDateISO.split("-").map(Number);
-  // Last complete month is the one before the reference date's month.
-  const endMonthDate = new Date(Date.UTC(refYear, refMonth - 1, 1));
-  endMonthDate.setUTCMonth(endMonthDate.getUTCMonth() - 1);
-  const startMonthDate = new Date(endMonthDate);
-  startMonthDate.setUTCMonth(startMonthDate.getUTCMonth() - (months - 1));
+  /** Yesterday's (or any given date's) top Wikipedia pageviews, rank-ordered. */
+  async fetchTrendingTop(dateISO: string): Promise<TrendingArticle[]> {
+    const [year, month, day] = dateISO.split("-");
+    const url = `https://wikimedia.org/api/rest_v1/metrics/pageviews/top/en.wikipedia.org/all-access/${year}/${month}/${day}`;
+    const data = (await this.request(url)) as {
+      items?: { articles?: { article: string; rank: number }[] }[];
+    } | null;
+    const articles = data?.items?.[0]?.articles ?? [];
+    return articles.map((a) => ({ title: a.article, rank: a.rank }));
+  }
 
-  const start = `${yyyymm(startMonthDate)}01`;
-  const end = `${yyyymm(endMonthDate)}01`;
-  const encodedTitle = encodeURIComponent(title.replace(/ /g, "_"));
-  const url = `https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia.org/all-access/all-agents/${encodedTitle}/monthly/${start}/${end}`;
-  const data = (await wikiFetch(url)) as { items?: { views: number }[] } | null;
-  const items = data?.items ?? [];
-  if (items.length === 0) return 0;
-  return items.reduce((sum, item) => sum + item.views, 0) / items.length;
-}
+  /** Up to `limit` direct article titles in a category (namespace 0, type page). */
+  async fetchCategoryMembers(category: string, limit = 500): Promise<string[]> {
+    const url = `https://en.wikipedia.org/w/api.php?action=query&list=categorymembers&cmtitle=${encodeURIComponent(category)}&cmlimit=${limit}&cmnamespace=0&cmtype=page&format=json`;
+    const data = (await this.request(url)) as {
+      query?: { categorymembers?: { title: string }[] };
+    } | null;
+    return (data?.query?.categorymembers ?? []).map((m) => m.title);
+  }
 
-/** Plaintext extract for an article, truncated to `maxChars`. Null on failure/empty. */
-export async function fetchExtract(title: string, maxChars = 15_000): Promise<string | null> {
-  const encodedTitle = encodeURIComponent(title.replace(/ /g, "_"));
-  const url = `https://en.wikipedia.org/w/api.php?action=query&prop=extracts&titles=${encodedTitle}&format=json&formatversion=2&explaintext=true`;
-  const data = (await wikiFetch(url)) as { query?: { pages?: { extract?: string }[] } } | null;
-  const extract = data?.query?.pages?.[0]?.extract;
-  if (!extract) return null;
-  return extract.length > maxChars ? extract.slice(0, maxChars) : extract;
+  /** Up to `limit` subcategories of a category (namespace 14, type subcat). */
+  async fetchSubcategories(category: string, limit = 50): Promise<string[]> {
+    const url = `https://en.wikipedia.org/w/api.php?action=query&list=categorymembers&cmtitle=${encodeURIComponent(category)}&cmlimit=${limit}&cmnamespace=14&cmtype=subcat&format=json`;
+    const data = (await this.request(url)) as {
+      query?: { categorymembers?: { title: string }[] };
+    } | null;
+    return (data?.query?.categorymembers ?? []).map((m) => m.title);
+  }
+
+  /**
+   * Average monthly pageviews over a rolling window of `months` ending at the
+   * last fully-complete month before `referenceDateISO` (defaults to now).
+   */
+  async fetchAveragePageviews(
+    title: string,
+    months = 5,
+    referenceDateISO = todayISO(),
+  ): Promise<number> {
+    const [refYear, refMonth] = referenceDateISO.split("-").map(Number);
+    // Last complete month is the one before the reference date's month.
+    const endMonthDate = new Date(Date.UTC(refYear, refMonth - 1, 1));
+    endMonthDate.setUTCMonth(endMonthDate.getUTCMonth() - 1);
+    const startMonthDate = new Date(endMonthDate);
+    startMonthDate.setUTCMonth(startMonthDate.getUTCMonth() - (months - 1));
+
+    const start = `${yyyymm(startMonthDate)}01`;
+    const end = `${yyyymm(endMonthDate)}01`;
+    const encodedTitle = encodeURIComponent(title.replace(/ /g, "_"));
+    const url = `https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia.org/all-access/all-agents/${encodedTitle}/monthly/${start}/${end}`;
+    const data = (await this.request(url)) as { items?: { views: number }[] } | null;
+    const items = data?.items ?? [];
+    if (items.length === 0) return 0;
+    return items.reduce((sum, item) => sum + item.views, 0) / items.length;
+  }
+
+  /** Plaintext extract for an article, truncated to `maxChars`. Null for a missing/empty article; throws on request failure. */
+  async fetchExtract(title: string, maxChars = 15_000): Promise<string | null> {
+    const encodedTitle = encodeURIComponent(title.replace(/ /g, "_"));
+    const url = `https://en.wikipedia.org/w/api.php?action=query&prop=extracts&titles=${encodedTitle}&format=json&formatversion=2&explaintext=true`;
+    const data = (await this.request(url)) as { query?: { pages?: { extract?: string }[] } } | null;
+    const extract = data?.query?.pages?.[0]?.extract;
+    if (!extract) return null;
+    return extract.length > maxChars ? extract.slice(0, maxChars) : extract;
+  }
 }
 
 function yyyymm(d: Date): string {
