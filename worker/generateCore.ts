@@ -1,6 +1,6 @@
-// Core daily top-up logic: keeps D1 topped up ~7 days ahead of a given
+// Core question top-up logic: keeps D1 topped up ~7 days ahead of a given
 // "today", generating exactly one missing round at a time so a partial
-// failure one night is recovered (not skipped) by a later run instead of
+// failure in one run is recovered (not skipped) by a later run instead of
 // stalling forever. Written against the runtime-agnostic DbClient/AiClient
 // interfaces (worker/clients.ts), with NO Cloudflare Workers-specific
 // imports or ambient types (D1Database, Ai, ...), so this same module is
@@ -13,18 +13,24 @@
 
 import type { DbClient, AiClient } from "./clients";
 import { todayChicago, addDaysISO } from "./date";
-import { getUsedAnswers, getRoundsInRange, insertQuestion } from "./db";
+import { getUsedAnswers, getRoundsInRange, getTopicsForDate, insertQuestion } from "./db";
 import { difficultyForRound } from "./difficulty";
 import {
   selectTrendingEntity,
   selectCategoryEntity,
   type EntitySelectionResult,
 } from "./entitySelection";
-import { fetchExtract } from "./wikipedia";
+import { WikipediaClient } from "./wikipedia";
 import { generateFacts, AiGatewaySpendLimitError, EntityRejectedError } from "./factGeneration";
 
 const HORIZON_DAYS = 7;
 const MAX_ENTITY_ATTEMPTS = 3;
+
+export interface TopUpOptions {
+  horizonDays?: number;
+  maxRounds?: 1 | 3;
+  wikipedia?: WikipediaClient;
+}
 
 export interface DateNeedingWork {
   date: string;
@@ -65,13 +71,17 @@ export function findDateNeedingWork(
  * `horizonDays` defaults to the cron's steady-state buffer target (7); the
  * local CLI script passes a much larger value so it can keep calling this
  * in a loop to bulk-seed many days ahead, regardless of how much buffer
- * already exists — each call still only fills one date, matching the
- * "regenerate one missing round at a time" recovery contract.
+ * already exists. The cron limits each invocation to one round; the CLI
+ * defaults to all missing rounds for one date.
  */
 export async function runTopUp(
   db: DbClient,
   ai: AiClient,
-  horizonDays = HORIZON_DAYS,
+  {
+    horizonDays = HORIZON_DAYS,
+    maxRounds = 3,
+    wikipedia = new WikipediaClient(),
+  }: TopUpOptions = {},
 ): Promise<void> {
   const today = todayChicago();
   const horizonEnd = addDaysISO(today, horizonDays);
@@ -94,9 +104,10 @@ export async function runTopUp(
   // the trending round unfillable for any date beyond tomorrow.
   const trendingDataDate = addDaysISO(today, -1);
   // Keeps the (up to) 2 category rounds within this date distinct from each other.
-  const categoryNamesUsedToday = new Set<string>();
+  const categoryNamesUsedToday = await getTopicsForDate(db, work.date);
+  const errors: unknown[] = [];
 
-  for (const roundNumber of work.missingRounds) {
+  for (const roundNumber of work.missingRounds.slice(0, maxRounds)) {
     try {
       await generateRound(
         db,
@@ -107,6 +118,7 @@ export async function runTopUp(
         trendingDataDate,
         usedAnswers,
         categoryNamesUsedToday,
+        wikipedia,
       );
     } catch (err) {
       if (err instanceof AiGatewaySpendLimitError) {
@@ -118,7 +130,7 @@ export async function runTopUp(
             round: roundNumber,
           }),
         );
-        return; // budget is exhausted for the rest of this run too — stop rather than keep failing
+        throw err; // Stop this run and mark the scheduled invocation as failed.
       }
       console.error(
         JSON.stringify({
@@ -129,8 +141,12 @@ export async function runTopUp(
           message: err instanceof Error ? err.message : String(err),
         }),
       );
+      errors.push(err);
       // Round is left missing — a later run retries just this slot.
     }
+  }
+  if (errors.length > 0) {
+    throw new AggregateError(errors, `Question generation failed for ${work.date}`);
   }
 }
 
@@ -150,13 +166,19 @@ async function generateRound(
   trendingDataDate: string,
   usedAnswers: Set<string>,
   categoryNamesUsedToday: Set<string>,
+  wikipedia: WikipediaClient,
 ): Promise<void> {
   const targetDifficulty = difficultyForRound(date, roundNumber);
 
   for (let attempt = 1; attempt <= MAX_ENTITY_ATTEMPTS; attempt++) {
     const selection: EntitySelectionResult | null = isTrending
-      ? await selectTrendingEntity(usedAnswers, targetDifficulty, trendingDataDate)
-      : await selectCategoryEntity(usedAnswers, targetDifficulty, categoryNamesUsedToday);
+      ? await selectTrendingEntity(usedAnswers, targetDifficulty, trendingDataDate, wikipedia)
+      : await selectCategoryEntity(
+          usedAnswers,
+          targetDifficulty,
+          categoryNamesUsedToday,
+          wikipedia,
+        );
 
     if (!selection) {
       throw new Error(`no eligible entity found for ${isTrending ? "trending" : "category"} round`);
@@ -166,8 +188,8 @@ async function generateRound(
     if (!isTrending) categoryNamesUsedToday.add(selection.topic);
 
     const [mainExtract, donorExtract] = await Promise.all([
-      fetchExtract(selection.main.title),
-      fetchExtract(selection.donor.title),
+      wikipedia.fetchExtract(selection.main.title),
+      wikipedia.fetchExtract(selection.donor.title),
     ]);
     if (!mainExtract || !donorExtract) {
       const missingWhich = !mainExtract ? selection.main.displayName : selection.donor.displayName;

@@ -1,4 +1,4 @@
-// Manually runs the same generation pipeline the daily Worker cron uses
+// Manually runs the same generation pipeline the hourly Worker cron uses
 // (worker/scheduled.ts's runTopUp) — against PRODUCTION D1 and the real AI
 // Gateway, via the Cloudflare REST API instead of Worker bindings. There is
 // no "local" mode: the REST API always talks to your real Cloudflare
@@ -52,7 +52,7 @@ async function main() {
   console.log(`Generating ${days} day(s) against PRODUCTION D1 via the Cloudflare REST API...`);
   for (let i = 0; i < days; i++) {
     console.log(`\n--- Run ${i + 1}/${days} ---`);
-    await runTopUp(db, ai, SEARCH_HORIZON_DAYS);
+    await runTopUp(db, ai, { horizonDays: SEARCH_HORIZON_DAYS });
   }
   console.log("\nDone.");
 }

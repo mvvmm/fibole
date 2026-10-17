@@ -23,6 +23,15 @@ export async function getUsedAnswers(db: DbClient): Promise<Set<string>> {
   return new Set(results.map((r) => r.answer));
 }
 
+/** Preserve category variety when a day's rounds are generated in separate runs. */
+export async function getTopicsForDate(db: DbClient, date: string): Promise<Set<string>> {
+  const { results } = await db.query<{ topic: string }>(
+    "SELECT topic FROM questions WHERE date = ?",
+    [date],
+  );
+  return new Set(results.map((r) => r.topic));
+}
+
 /** Round numbers present for each date within [startISO, endISO] (inclusive). */
 export async function getRoundsInRange(
   db: DbClient,

@@ -3,14 +3,8 @@
 // code, wiring together wikipedia.ts (fetches) and difficulty.ts (banding).
 
 import { CATEGORIES, type Category } from "../scripts/categories";
-import {
-  fetchTrendingTop,
-  fetchCategoryMembers,
-  fetchSubcategories,
-  fetchAveragePageviews,
-  filterEligibleTitles,
-  shuffle,
-} from "./wikipedia";
+import { addDaysISO } from "./date";
+import { WikipediaClient, filterEligibleTitles, shuffle, type TrendingArticle } from "./wikipedia";
 import {
   classifyByRank,
   classifyByViews,
@@ -48,15 +42,21 @@ export async function selectTrendingEntity(
   usedAnswers: ReadonlySet<string>,
   targetDifficulty: Difficulty,
   yesterdayISO: string,
+  wikipedia = new WikipediaClient(),
 ): Promise<EntitySelectionResult | null> {
-  const trending = await fetchTrendingTop(yesterdayISO);
-  if (trending.length === 0) return null;
-
-  const eligible = filterEligibleTitles(
-    trending.map((a) => a.title),
-    usedAnswers,
-  );
-  if (eligible.length === 0) return null;
+  // Wikimedia's daily aggregates can lag behind the calendar. Try the
+  // preceding two dates too rather than blocking the entire question buffer.
+  let trending: TrendingArticle[] = [];
+  let eligible: string[] = [];
+  for (let offset = 0; offset < 3; offset++) {
+    trending = await wikipedia.fetchTrendingTop(addDaysISO(yesterdayISO, -offset));
+    eligible = filterEligibleTitles(
+      trending.map((a) => a.title),
+      usedAnswers,
+    );
+    if (eligible.length >= 2) break;
+  }
+  if (eligible.length < 2) return null;
 
   const rankByTitle = new Map(trending.map((a) => [a.title, a.rank]));
   const pools: Record<Difficulty, string[]> = { easy: [], medium: [], hard: [] };
@@ -91,12 +91,13 @@ export async function selectCategoryEntity(
   usedAnswers: ReadonlySet<string>,
   targetDifficulty: Difficulty,
   excludeCategoryNames: ReadonlySet<string> = new Set(),
+  wikipedia = new WikipediaClient(),
 ): Promise<EntitySelectionResult | null> {
   const candidates = shuffle(CATEGORIES.filter((c) => !excludeCategoryNames.has(c.name)));
   const attempts = Math.min(MAX_CATEGORY_ATTEMPTS, candidates.length);
 
   for (let i = 0; i < attempts; i++) {
-    const result = await tryCategory(candidates[i], usedAnswers, targetDifficulty);
+    const result = await tryCategory(candidates[i], usedAnswers, targetDifficulty, wikipedia);
     if (result) return result;
   }
   return null;
@@ -106,13 +107,14 @@ async function tryCategory(
   category: Category,
   usedAnswers: ReadonlySet<string>,
   targetDifficulty: Difficulty,
+  wikipedia: WikipediaClient,
 ): Promise<EntitySelectionResult | null> {
-  let members = await fetchCategoryMembers(category.wikipediaCategory);
+  let members = await wikipedia.fetchCategoryMembers(category.wikipediaCategory);
 
   // Container-category fallback (skill Step 3a1): thin direct membership means
   // this category sorts articles into subcategories instead of holding them.
   if (members.length < MIN_CONTAINER_MEMBERS) {
-    members = await expandContainerCategory(category.wikipediaCategory, 1);
+    members = await expandContainerCategory(category.wikipediaCategory, 1, wikipedia);
   }
   if (members.length === 0) return null;
 
@@ -124,7 +126,7 @@ async function tryCategory(
 
   for (let i = 0; i < checkCount; i++) {
     const title = eligible[i];
-    const views = await fetchAveragePageviews(title);
+    const views = await wikipedia.fetchAveragePageviews(title);
 
     // The category's view floor is a pre-filter guard — deliberately ignored
     // when targeting "hard", since the goal there is a genuinely low-view entity.
@@ -151,8 +153,12 @@ async function tryCategory(
   return buildCategoryResult(category, closest.title, eligible, closest.difficulty);
 }
 
-async function expandContainerCategory(category: string, depth: number): Promise<string[]> {
-  const subcats = shuffle(await fetchSubcategories(category));
+async function expandContainerCategory(
+  category: string,
+  depth: number,
+  wikipedia: WikipediaClient,
+): Promise<string[]> {
+  const subcats = shuffle(await wikipedia.fetchSubcategories(category));
   if (subcats.length === 0) return [];
 
   const sampleSize = Math.min(subcats.length, 2 + Math.floor(Math.random() * 3)); // 2-4
@@ -160,9 +166,9 @@ async function expandContainerCategory(category: string, depth: number): Promise
 
   const pooled: string[] = [];
   for (const subcat of chosen) {
-    let members = await fetchCategoryMembers(subcat);
+    let members = await wikipedia.fetchCategoryMembers(subcat);
     if (members.length < MIN_CONTAINER_MEMBERS && depth < MAX_CONTAINER_RECURSION_DEPTH) {
-      members = await expandContainerCategory(subcat, depth + 1);
+      members = await expandContainerCategory(subcat, depth + 1, wikipedia);
     }
     pooled.push(...members);
   }
